@@ -16,20 +16,23 @@
 use WHMCS\Database\Capsule;
 
 if (!defined("WHMCS")) die("This file cannot be accessed directly");
+
+define("MODULENAME", 'google_tag_manager');
   
 function gtm_get_module_settings($setting){
-  
+    
     if ($setting == null || empty($setting)){
       return Capsule::table('tbladdonmodules')->select('setting', 'value')
-            ->where('module', 'google_tag_manager')
+            ->where('module', MODULENAME)
             ->get();
     }
     else{
       return Capsule::table('tbladdonmodules')
-            ->where('module', 'google_tag_manager')
+            ->where('module', MODULENAME)
             ->where('setting', $setting)
             ->value('value');
     }
+    
 }
 
 /** The following two hooks output the code required for GTM to function **/
