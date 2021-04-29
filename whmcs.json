@@ -1,0 +1,31 @@
+{
+    "schema": "1.0",
+    "type": "whmcs-addons",
+    "name": "google-tag-manager",
+    "license": "GPLv3",
+    "category": "addon",
+    "description": {
+        "name": "Google Tag Manager",
+        "tagline": "Google Tag Manager support for WHMCS",
+        "long": "Automatically includes the GTM embed codes and provides the necessary JavaScript dataLayer for eCommerce variables",
+        "features": [
+            "Provides a settings field to enter your GTM ID",
+            "Automatically embeds the correct GTM code in Client Area",
+            "Inserts the necessary JavaScript dataLayer array with eCommerce variables"
+        ]
+    },
+    "logo": {
+        "filename": "logo.png"
+    },
+    "support": {
+        "homepage": "https:\/\/websavers.ca\/", 
+        "email": "help@websavers.ca", 
+        "support_url": "https:\/\/clients.websavers.ca\/",
+    },
+    "authors": [
+        {
+            "name": "Websavers Inc.",
+            "homepage": "https:\/\/websavers.ca\/"
+        }
+    ]
+}
