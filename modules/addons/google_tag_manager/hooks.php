@@ -25,7 +25,7 @@ function gtm_get_module_settings($setting){
             ->get();
     }
     else{
-      return Capsule::table('tbladdonmodules')->select('setting', 'value')
+      return Capsule::table('tbladdonmodules')
             ->where('module', 'google_tag_manager')
             ->where('setting', $setting)
             ->value('value');
@@ -35,7 +35,8 @@ function gtm_get_module_settings($setting){
 /** The following two hooks output the code required for GTM to function **/
 
 add_hook('ClientAreaHeadOutput', 1, function($vars) {
-    $container_id = gtm_get_module_settings('gtm-container-id');
+  $container_id = gtm_get_module_settings('gtm-container-id');
+  if (!empty($container_id)):
     return "<!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -43,12 +44,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','$container_id');</script>
 <!-- End Google Tag Manager -->";
+  endif;
 });
 
 add_hook('ClientAreaHeaderOutput', 1, function($vars) {
-    $container_id = gtm_get_module_settings('gtm-container-id');
+  $container_id = gtm_get_module_settings('gtm-container-id');
+  if (!empty($container_id)):
     return "<!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src='https://www.googletagmanager.com/ns.html?id=$container_id'
-  height='0' width='0' style='display:none;visibility:hidden'></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->";
+<noscript><iframe src='https://www.googletagmanager.com/ns.html?id=$container_id'
+height='0' width='0' style='display:none;visibility:hidden'></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->";
+  endif;
 });

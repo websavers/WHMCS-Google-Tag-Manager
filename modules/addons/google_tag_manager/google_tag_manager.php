@@ -52,26 +52,19 @@ if (!defined("WHMCS")) {
  *
  * @return array
  */
-function gtm_config()
-{
+function google_tag_manager_config(){
     return [
-        // Display name for your module
         'name' => 'Google Tag Manager',
-        // Description displayed within the admin interface
         'description' => 'Automatically includes the GTM embed codes and provides the necessary JavaScript dataLayer for eCommerce variables',
-        // Module author name
         'author' => 'Websavers Inc.',
-        // Default language
         'language' => 'english',
-        // Version number
         'version' => '1.0',
         'fields' => [
-            // a text field type allows for single line text input
             'gtm-container-id' => [
                 'FriendlyName' => 'GTM Container ID',
                 'Type' => 'text',
                 'Size' => '15',
-                'Default' => 'GTM-0123456',
+                'Placeholder' => 'GTM-0123456',
                 'Description' => 'Enter your GTM container ID here.',
             ],
         ]
