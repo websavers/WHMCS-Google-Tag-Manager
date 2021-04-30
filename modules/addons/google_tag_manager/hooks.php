@@ -237,7 +237,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
         'actionField': {
           'id': '{$order[id]}', 
           'revenue': '{$order[amount]}',       // Total transaction value (incl. tax and shipping)
-          'tax':'$tax',
+          'tax': '$tax',
           'coupon': '{$order[promocode]}'
         },
         'products': [$productsJSON]
