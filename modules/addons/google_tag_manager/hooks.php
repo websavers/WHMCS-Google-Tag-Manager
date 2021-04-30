@@ -234,6 +234,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
 		
   $eventJSON = "{
     'event': 'checkout',
+    'eventAction': 'PaymentComplete',
     'ecommerce': {
       'checkout': {
         'actionField': {'step': 6, 'option': 'PaymentComplete'},
