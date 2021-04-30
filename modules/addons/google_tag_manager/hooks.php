@@ -238,7 +238,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     'ecommerce': {
       'checkout': {
         'actionField': {'step': 6, 'option': 'PaymentComplete'},
-      }
+      },
       'purchase': {
         'actionField': {
           'id': '{$order[id]}', 
