@@ -124,6 +124,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     case 'configureproductdomain':
       $eventJSON = "{
         'event': 'checkout',
+        'eventAction': 'ConfigureProductDomain',
         'ecommerce': {
           'checkout': {
             'actionField': {'step': 1, 'option': 'ConfigureProductDomain'},
@@ -136,6 +137,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     case 'configureproduct':
       $eventJSON = "{
         'event': 'checkout',
+        'eventAction': 'ConfigureProduct',
         'ecommerce': {
           'checkout': {
             'actionField': {'step': 2, 'option': 'ConfigureProduct'},
@@ -158,6 +160,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     case 'configuredomains':
       $eventJSON = "{
         'event': 'checkout',
+        'eventAction': 'ConfigureDomains',
         'ecommerce': {
           'checkout': {
             'actionField': {'step': 3, 'option': 'ConfigureDomains'},
@@ -171,6 +174,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       if ($_REQUEST['a'] == 'view'){
         $eventJSON = "{
           'event': 'checkout',
+          'eventAction': 'ViewCart',
           'ecommerce': {
             'checkout': {
               'actionField': {'step': 4, 'option': 'ViewCart'},
@@ -183,6 +187,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       else if ($_REQUEST['a'] == 'checkout'){
         $eventJSON = "{
           'event': 'checkout',
+          'eventAction': 'Checkout',
           'ecommerce': {
             'checkout': {
               'actionField': {'step': 5, 'option': 'Checkout'},
