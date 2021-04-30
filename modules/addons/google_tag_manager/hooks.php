@@ -87,7 +87,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     $productsArray[] = array(
       'name'      => $productAdded['name'],
       'id'        => $productAdded['pid'],
-      'price'     => $price,
+      'price'     => gtm_format_price($price, $currencyCode),
       'category'  => $productAdded['group_name'],
       'quantity'  => 1
     );
@@ -139,7 +139,6 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
           'products' => $productsArray
         )
       );
-      $addToCart = true;
       break;
       
     case 'configureproduct':
@@ -198,6 +197,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       break;
   }
   
+  $addToCartOutput = '';
   if ($addToCart){
     $addToCartOutput = "window.dataLayer.push(" . json_encode(array(
       'event'     => 'addToCart',
