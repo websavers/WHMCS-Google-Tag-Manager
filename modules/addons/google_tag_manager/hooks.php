@@ -35,6 +35,11 @@ function gtm_get_module_settings($setting){
     
 }
 
+function gtm_format_price($price, $currencyCode){
+  $price = str_replace("$","",$price);
+  return str_replace($currencyCode, "",$price);
+}
+
 /** The following two hooks output the code required for GTM to function **/
 
 add_hook('ClientAreaHeadOutput', 1, function($vars) {
@@ -74,137 +79,127 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   
   //if ( $_REQUEST['debug'] ) var_dump($vars['activeCurrency']['code']); ///DEBUG
   
-  $productJSON = '';
+  $productsArray = array();
+  
   if (!empty($productAdded)){ //product config
-    
     $selectedCycle = $vars['billingcycle'];
-    $price = $vars['pricing']['rawpricing'][$selectedCycle];
-    
-    $productJSON = "{                        
-      'name': '{$productAdded[name]}',
-      'id': '{$productAdded[pid]}',
-      'price': '$price',
-      'category': '{$productAdded[group_name]}',
-      'quantity': 1
-    }";
+    $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
+
+    $productsArray[] = array(
+      'name'      => $productAdded['name'],
+      'id'        => $productAdded['pid'],
+      'price'     => $price,
+      'category'  => $productAdded['group_name'],
+      'quantity'  => 1
+    );
   }
   if (!empty($domainsAdded)){ //domain config
     foreach($domainsAdded as $domain){
-      $productJSON .= "{                        
-        'name': 'Domain: {$domain[domain]}',
-        'price': '{$domain[price]}',
-        'category': 'Domain',
-        'quantity': 1
-      },";
+      $productsArray[] = array(                        
+        'name'      => "Domain: " . $domain['domain'],
+        'price'     => gtm_format_price($domain['price'], $currencyCode),
+        'category'  => 'Domain Registration',
+        'quantity'  => 1
+      );
     }
   }
   if (!empty($productsAdded)){ //viewcart
     foreach($productsAdded as $productAdded){
       $selectedCycle = $productAdded['billingcyclefriendly'];
-      $price = $productAdded['pricing']['recurring'][$selectedCycle];
-      $productJSON .= "{                        
-        'name': '{$productAdded[productinfo][name]}',
-        'id': '{$productAdded[productinfo][pid]}',
-        'price': '$price',
-        'category': '{$productAdded[productinfo][groupname]}',
-        'quantity': 1
-      },";
+      $price = (string)$productAdded['pricing']['recurring'][$selectedCycle];
+      $productsArray[] = array(                       
+        'name'      => $productAdded['productinfo']['name'],
+        'id'        => $productAdded['productinfo']['pid'],
+        'price'     => gtm_format_price($price, $currencyCode),
+        'category'  => $productAdded['productinfo']['groupname'],
+        'quantity'  => 1
+      );
     }
   }
   
-  $common = "
-      'currencyCode': '$currencyCode',
-      'language': '$lang',
-      'template': '{$vars[templatefile]}',
-      'userID': '{$vars[userid]}'
-      ";
+  $commonArray = array(
+    'currencyCode'  => $currencyCode,
+    'language'      => $lang,
+    'template'      => $vars['templatefile'],
+    'userID'        => $vars['userid']
+  );
+  
+  $eventArray = array();
   
   switch ($vars['templatefile']){
 		
     case 'configureproductdomain':
-      $eventJSON = "{
-        'event': 'checkout',
-        'eventAction': 'ConfigureProductDomain',
-        'ecommerce': {
-          'checkout': {
-            'actionField': {'step': 1, 'option': 'ConfigureProductDomain'},
-            'products': [$productJSON]
-          }
-        },
-        $common
-      }";
+      $eventArray = array(
+        'event'         => 'checkout',
+        'eventAction'   => 'ConfigureProductDomain',
+        'ecommerce'     => array(
+          'checkout' => array(
+            'actionField' => array( 'step' => 1, 'option' => 'ConfigureProductDomain' )
+          ),
+          'products' => $productsArray
+        )
+      );
       break;
+      
     case 'configureproduct':
-      $eventJSON = "{
-        'event': 'checkout',
-        'eventAction': 'ConfigureProduct',
-        'ecommerce': {
-          'checkout': {
-            'actionField': {'step': 2, 'option': 'ConfigureProduct'},
-            'products': [$productJSON]
-          }
-        },
-        $common
-      }";
-      $eventJSON .= ",{
-        'event': 'addToCart',
-        'ecommerce': {
-          'currencyCode': '$currencyCode',
-          'add': {                                
-            'products': [$productJSON]
-          }
-        },
-        $common
-      }";
+      $eventArray = array(
+        'event'         => 'checkout',
+        'eventAction'   => 'ConfigureProduct',
+        'ecommerce'     => array(
+          'checkout' => array( 
+            'actionField' => array( 'step' => 2, 'option' => 'ConfigureProduct' )
+          ),
+          'products' => $productsArray
+        )
+      );
       break;
+      
     case 'configuredomains':
-      $eventJSON = "{
-        'event': 'checkout',
-        'eventAction': 'ConfigureDomains',
-        'ecommerce': {
-          'checkout': {
-            'actionField': {'step': 3, 'option': 'ConfigureDomains'},
-            'products': [$productJSON]
-          }
-        },
-        $common
-      }";
+      $eventArray = array(
+        'event'         => 'checkout',
+        'eventAction'   => 'ConfigureDomains',
+        'ecommerce'     => array(
+          'checkout' => array( 
+            'actionField' => array( 'step' => 3, 'option' => 'ConfigureDomains' )
+          ),
+          'products' => $productsArray
+        )
+      );
       break; 
+      
     case 'viewcart':
       if ($_REQUEST['a'] == 'view'){
-        $eventJSON = "{
-          'event': 'checkout',
-          'eventAction': 'ViewCart',
-          'ecommerce': {
-            'checkout': {
-              'actionField': {'step': 4, 'option': 'ViewCart'},
-              'products': [$productJSON]
-            }
-          },
-          $common
-        }";
+        $eventArray = array(
+          'event'         => 'checkout',
+          'eventAction'   => 'ViewCart',
+          'ecommerce'     => array(
+            'checkout' => array( 
+              'actionField' => array( 'step' => 4, 'option' => 'ViewCart' )
+            ),
+            'products' => $productsArray
+          )
+        );
       }
       else if ($_REQUEST['a'] == 'checkout'){
-        $eventJSON = "{
-          'event': 'checkout',
-          'eventAction': 'Checkout',
-          'ecommerce': {
-            'checkout': {
-              'actionField': {'step': 5, 'option': 'Checkout'},
-              'products': [$productJSON]
-            }
-          },
-          $common
-        }"; 
+        $eventArray = array(
+          'event'         => 'checkout',
+          'eventAction'   => 'Checkout',
+          'ecommerce'     => array(
+            'checkout' => array( 
+              'actionField' => array( 'step' => 5, 'option' => 'Checkout' )
+            ),
+            'products' => $productsArray
+          )
+        );
       }
-      break; 
+      break;
   }
 
-  if (!empty($eventJSON))
+  if (!empty($eventArray))
     return "<script id='GTM_DataLayer'>
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ ecommerce: null });
-    window.dataLayer.push($eventJSON);
+    window.dataLayer.push(" . json_encode(array_merge($eventArray, $commonArray)) . ");
     </script>";
 });
 
