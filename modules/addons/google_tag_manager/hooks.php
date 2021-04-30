@@ -218,7 +218,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     $productsArray[] = array(
       'name'      => $product['product'],
       'id'        => $product['relid'],
-      'price'     => $product['amount'],
+      'price'     => gtm_format_price($product['amount']),
       'category'  => $product['producttype'],
       'quantity'  => 1
     );
@@ -241,7 +241,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
       'purchase'  => array(
         'actionField' => array(
           'id'        => $order['id'], 
-          'revenue'   => $order['amount'], // Total transaction value (incl. tax and shipping)
+          'revenue'   => gtm_format_price($order['amount']), // Total transaction value (incl. tax and shipping)
           'tax'       => $tax,
           'coupon'    => $order['promocode']
         ),
