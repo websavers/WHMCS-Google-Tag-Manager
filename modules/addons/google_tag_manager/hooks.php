@@ -67,7 +67,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   
   $productAdded = $vars['productinfo'];
   $domainsAdded = $vars['domains'];
-  $productsAdded = $vars['products'];
+  $productsAdded = $vars['products']; 
   
   $currencyCode = $vars['activeCurrency']['code'];
   $lang = $vars['activeLocale']['languageCode'];
@@ -208,10 +208,9 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
  */
 add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
-  $orderId = $vars['orderid'];
   $userId = $vars['clientdetails']['userid'];
   
-  $result = localAPI('GetOrders', array('id' => $orderId));
+  $result = localAPI('GetOrders', array('id' => $vars['orderid']));
   $order = $result['orders']['order'];
   
   $productsJSON = '';
@@ -225,26 +224,26 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     },";
   }
 		
-  $eventJSON = "
-{
-  'ecommerce': {
-    'checkout': {
-      'actionField': {'step': 6, 'option': 'PaymentComplete'},
+  $eventJSON = "{
+    'event': 'checkout',
+    'ecommerce': {
+      'checkout': {
+        'actionField': {'step': 6, 'option': 'PaymentComplete'},
+      }
+      'purchase': {
+        'actionField': {
+          'id': '{$order[id]}', 
+          'revenue': '{$order[amount]}',       // Total transaction value (incl. tax and shipping)
+          'tax':'',
+          'coupon': '{$order[promocode]}'
+        },
+        'products': [$productsJSON]
+      }
     }
-    'purchase': {
-      'actionField': {
-        'id': '{$order[id]}', // Transaction ID.
-        'revenue': '{$order[amount]}',       // Total transaction value (incl. tax and shipping)
-        'tax':'',
-        'coupon': '{$order[promocode]}'
-      },
-      'products': [$productsJSON]
-    }
-  }
-}";
+  }";
 
   if (!empty($eventJSON)){
-    return "<script>window.dataLayer = window.dataLayer || []; 
+    return "<script id='GTM_DataLayer'>window.dataLayer = window.dataLayer || []; 
     window.dataLayer.push({ ecommerce: null }); 
     window.dataLayer.push($eventJSON);
     </script>";
