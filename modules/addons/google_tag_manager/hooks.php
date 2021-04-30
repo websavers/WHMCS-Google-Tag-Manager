@@ -138,9 +138,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       );
     }
   }
-  
-  $eventArray = array();
-  
+    
   switch ($vars['templatefile']){
 		
     case 'configureproductdomain':
@@ -162,6 +160,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       break; 
       
     case 'viewcart':
+
       if ($_REQUEST['a'] == 'view'){
         $event = 'add_to_cart';
         $action = 'viewcart';
@@ -171,21 +170,43 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         $action = 'checkout';
       }
       break;
-  }
-  
-  $eventArray = array(
-    'event'         => $event,
-    'eventAction'   => $action,
-    'ecommerce'     => array( 'items' => $itemsArray )
-  );
 
-  if (!empty($eventArray['event'])){
+  }
+
+  $js_events = '';
+
+  if ($action === 'viewcart'){
+
+    $js_events .= '
+    // Empty Cart Event
+    document.getElementById("btnEmptyCart").onclick = function(){
+      dataLayer.push({ ecommerce: null });  // Clear the previous ecommerce object.
+      dataLayer.push({
+        event: "remove_from_cart",
+        ecommerce: { items: ' . $itemsArray . ' }
+      });
+    };
+    ';
+
+  }
+
+  if (!empty($event)){
+  
+    $eventArray = array(
+      'event'         => $event,
+      'eventAction'   => $action,
+      'ecommerce'     => array( 'items' => $itemsArray )
+    );
+
     return "<script id='GTM_DataLayer'>
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ ecommerce: null });
     window.dataLayer.push(" . json_encode($eventArray) . ");
+    " . $js_events . "
     </script>";
+
   }
+  
 });
 
 /**
