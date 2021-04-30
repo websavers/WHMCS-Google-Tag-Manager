@@ -36,8 +36,7 @@ function gtm_get_module_settings($setting){
 }
 
 function gtm_format_price($price, $currencyCode){
-  $price = str_replace("$","",$price);
-  return str_replace($currencyCode, "",$price);
+  return str_replace(['$', $currencyCode],'',$price);
 }
 
 /** The following two hooks output the code required for GTM to function **/
