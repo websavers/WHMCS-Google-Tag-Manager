@@ -124,6 +124,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   );
   
   $eventArray = array();
+  $addToCart = false;
   
   switch ($vars['templatefile']){
 		
@@ -138,6 +139,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
           'products' => $productsArray
         )
       );
+      $addToCart = true;
       break;
       
     case 'configureproduct':
@@ -151,6 +153,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
           'products' => $productsArray
         )
       );
+      $addToCart = true;
       break;
       
     case 'configuredomains':
@@ -164,6 +167,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
           'products' => $productsArray
         )
       );
+      $addToCart = true;
       break; 
       
     case 'viewcart':
@@ -193,13 +197,25 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       }
       break;
   }
+  
+  if ($addToCart){
+    $addToCartOutput = "window.dataLayer.push(" . json_encode(array(
+      'event'     => 'addToCart',
+      'ecommerce' => array(
+        'currencyCode' => $currencyCode,
+        'add'          => array('products' => $productsArray)
+      )
+    )) . ");";
+  }
 
-  if (!empty($eventArray))
+  if (!empty($eventArray)){
     return "<script id='GTM_DataLayer'>
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ ecommerce: null });
     window.dataLayer.push(" . json_encode(array_merge($eventArray, $commonArray)) . ");
+    " . $addToCartOutput . "
     </script>";
+  }
 });
 
 /**
