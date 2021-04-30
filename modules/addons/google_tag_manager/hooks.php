@@ -213,48 +213,53 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
  */
 add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
-  $userId = $vars['clientdetails']['userid'];
+  $currencyCode = $vars['activeCurrency']['code'];
+  $lang = $vars['activeLocale']['languageCode'];
   
   $res_orders = localAPI('GetOrders', array('id' => $vars['orderid']));
   $order = $res_orders['orders']['order'];
-  
-  $productsJSON = '';
+
+  $productsArray = array();
   foreach ($order['lineitems']['lineitem'] as $product){
-    $productsJSON .= "{
-      'name': '{$product[product]}',
-      'id': '{$product[relid]}',
-      'price': '{$product[amount]}',
-      'category': '{$product[producttype]}',
-      'quantity': 1,
-    },";
+    $productsArray[] = array(
+      'name'      => $product['product'],
+      'id'        => $product['relid'],
+      'price'     => $product['amount'],
+      'category'  => $product['producttype'],
+      'quantity'  => 1
+    );
   }
   
   $res_invoice = localAPI('GetInvoice', array('invoiceid' => $order['invoiceid']));
   $tax = (float)$res_invoice['tax'] + (float)$res_invoice['tax2'];
-		
-  $eventJSON = "{
-    'event': 'checkout',
-    'eventAction': 'PaymentComplete',
-    'ecommerce': {
-      'checkout': {
-        'actionField': {'step': 6, 'option': 'PaymentComplete'},
-      },
-      'purchase': {
-        'actionField': {
-          'id': '{$order[id]}', 
-          'revenue': '{$order[amount]}',       // Total transaction value (incl. tax and shipping)
-          'tax': '$tax',
-          'coupon': '{$order[promocode]}'
-        },
-        'products': [$productsJSON]
-      }
-    }
-  }";
+  
+  $eventArray = array(
+    'event'       => 'checkout',
+    'eventAction' => 'PaymentComplete',
+    'currencyCode'  => $currencyCode,
+    'language'      => $lang,
+    'template'      => $vars['templatefile'],
+    'userID'        => $vars['clientdetails']['userid'],
+    'ecommerce'   => array(
+      'checkout' => array(
+        'actionField' => array('step' => 6, 'option' => 'PaymentComplete')
+      ),
+      'purchase'  => array(
+        'actionField' => array(
+          'id'        => $order['id'], 
+          'revenue'   => $order['amount'], // Total transaction value (incl. tax and shipping)
+          'tax'       => $tax,
+          'coupon'    => $order['promocode']
+        ),
+        'products'    => $productsArray
+      )
+    )
+  );
 
-  if (!empty($eventJSON)){
+  if (!empty($eventArray)){
     return "<script id='GTM_DataLayer'>window.dataLayer = window.dataLayer || []; 
     window.dataLayer.push({ ecommerce: null }); 
-    window.dataLayer.push($eventJSON);
+    window.dataLayer.push(" . json_encode($eventArray) . ");
     </script>";
   }
   
