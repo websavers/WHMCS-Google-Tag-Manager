@@ -147,7 +147,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       $eventJSON .= ",{
         'event': 'addToCart',
         'ecommerce': {
-          'currencyCode': 'CAD',
+          'currencyCode': '$currencyCode',
           'add': {                                
             'products': [$productJSON]
           }
