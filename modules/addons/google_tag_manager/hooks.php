@@ -210,8 +210,8 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
   $userId = $vars['clientdetails']['userid'];
   
-  $result = localAPI('GetOrders', array('id' => $vars['orderid']));
-  $order = $result['orders']['order'];
+  $res_orders = localAPI('GetOrders', array('id' => $vars['orderid']));
+  $order = $res_orders['orders']['order'];
   
   $productsJSON = '';
   foreach ($order['lineitems']['lineitem'] as $product){
@@ -223,6 +223,9 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
       'quantity': 1,
     },";
   }
+  
+  $res_invoice = localAPI('GetInvoice', array('invoiceid' => $order['invoiceid']));
+  $tax = (float)$res_invoice['tax'] + (float)$res_invoice['tax2'];
 		
   $eventJSON = "{
     'event': 'checkout',
@@ -234,7 +237,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
         'actionField': {
           'id': '{$order[id]}', 
           'revenue': '{$order[amount]}',       // Total transaction value (incl. tax and shipping)
-          'tax':'',
+          'tax':'$tax',
           'coupon': '{$order[promocode]}'
         },
         'products': [$productsJSON]
