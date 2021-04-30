@@ -37,6 +37,11 @@ Checkout Labeling create the FUNNEL STEPS as follows:
 
 Press Save.
 
+## Developer Notes ##
+
+The documentation to follow for all dataLayer events can be found here: 
+https://developers.google.com/tag-manager/enhanced-ecommerce
+
 
 ## Minimum Requirements ##
 
