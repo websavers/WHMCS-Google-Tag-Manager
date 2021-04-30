@@ -222,12 +222,14 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
  * https://developers.whmcs.com/hooks-reference/shopping-cart/#shoppingcartcheckoutcompletepage
  */
 add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
-  
-  $currencyCode = $vars['activeCurrency']['code'];
-  $lang = $vars['activeLocale']['languageCode'];
-  
+    
   $res_orders = localAPI('GetOrders', array('id' => $vars['orderid']));
-  $order = $res_orders['orders']['order'];
+  $order = $res_orders['orders']['order'][0];
+  
+  $currencyCode = $order['currencysuffix'];
+  $lang = $vars['activeLocale']['languageCode']; //var does not exist
+  
+  //if ( $_REQUEST['debug'] ) var_dump($order); ///DEBUG
 
   $productsArray = array();
   foreach ($order['lineitems']['lineitem'] as $product){
@@ -248,8 +250,8 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     'eventAction' => 'PaymentComplete',
     'currencyCode'  => $currencyCode,
     'language'      => $lang,
-    'template'      => $vars['templatefile'],
-    'userID'        => $vars['clientdetails']['userid'],
+    'template'      => 'complete',
+    'userID'        => $order['userid'],
     'ecommerce'   => array(
       'checkout' => array(
         'actionField' => array('step' => 6, 'option' => 'PaymentComplete')
@@ -257,7 +259,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
       'purchase'  => array(
         'actionField' => array(
           'id'        => $order['id'], 
-          'revenue'   => gtm_format_price($order['amount'], $currencyCode), // Total transaction value (incl. tax and shipping)
+          'revenue'   => $order['amount'], // Total transaction value (incl. tax and shipping)
           'tax'       => $tax,
           'coupon'    => $order['promocode']
         ),
