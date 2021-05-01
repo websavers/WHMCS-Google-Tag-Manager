@@ -93,23 +93,23 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   
   //if ( $_REQUEST['debug'] ) var_dump($vars['activeCurrency']['code']); ///DEBUG
   
-  $productsArray = array();
+  $itemsArray = array();
   
   if (!empty($productAdded)){ //product config
     $selectedCycle = $vars['billingcycle'];
     $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
 
-    $productsArray[] = array(
-      'name'      => $productAdded['name'],
-      'id'        => $productAdded['pid'],
+    $itemsArray[] = array(
+      'item_name'      => $productAdded['name'],
+      'item_id'        => $productAdded['pid'],
       'price'     => gtm_format_price($price, $currencyCode),
-      'category'  => $productAdded['group_name'],
+      'item_category'  => $productAdded['group_name'],
       'quantity'  => 1
     );
   }
   if (!empty($domainsAdded)){ //domain config
     foreach($domainsAdded as $domain){
-      $productsArray[] = array(                        
+      $itemsArray[] = array(                        
         'name'      => "Domain: " . $domain['domain'],
         'price'     => gtm_format_price($domain['price'], $currencyCode),
         'category'  => 'Domain Registration',
@@ -121,7 +121,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     foreach($productsAdded as $productAdded){
       $selectedCycle = $productAdded['billingcyclefriendly'];
       $price = (string)$productAdded['pricing']['recurring'][$selectedCycle];
-      $productsArray[] = array(                       
+      $itemsArray[] = array(                       
         'name'      => $productAdded['productinfo']['name'],
         'id'        => $productAdded['productinfo']['pid'],
         'price'     => gtm_format_price($price, $currencyCode),
@@ -131,104 +131,51 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     }
   }
   
-  $commonArray = array(
-    'currencyCode'  => $currencyCode,
-    'language'      => $lang,
-    'template'      => $vars['templatefile'],
-    'userID'        => $vars['userid']
-  );
-  
   $eventArray = array();
-  $addToCart = false;
   
   switch ($vars['templatefile']){
 		
     case 'configureproductdomain':
-      $eventArray = array(
-        'event'         => 'checkout',
-        'eventAction'   => 'ConfigureProductDomain',
-        'ecommerce'     => array(
-          'checkout' => array(
-            'actionField' => array( 'step' => 1, 'option' => 'ConfigureProductDomain' )
-          ),
-          'products' => $productsArray
-        )
-      );
+    
+      $event = 'domain_selection';
+      $action = 'configureproductdomain';
       break;
       
     case 'configureproduct':
-      $eventArray = array(
-        'event'         => 'checkout',
-        'eventAction'   => 'ConfigureProduct',
-        'ecommerce'     => array(
-          'checkout' => array( 
-            'actionField' => array( 'step' => 2, 'option' => 'ConfigureProduct' )
-          ),
-          'products' => $productsArray
-        )
-      );
-      $addToCart = true;
+
+      $event = 'add_to_cart';
+      $action = 'configureproduct';
       break;
       
     case 'configuredomains':
-      $eventArray = array(
-        'event'         => 'checkout',
-        'eventAction'   => 'ConfigureDomains',
-        'ecommerce'     => array(
-          'checkout' => array( 
-            'actionField' => array( 'step' => 3, 'option' => 'ConfigureDomains' )
-          ),
-          'products' => $productsArray
-        )
-      );
-      $addToCart = true;
+    
+      $event = 'add_to_cart';
+      $action = 'configuredomains';
       break; 
       
     case 'viewcart':
       if ($_REQUEST['a'] == 'view'){
-        $eventArray = array(
-          'event'         => 'checkout',
-          'eventAction'   => 'ViewCart',
-          'ecommerce'     => array(
-            'checkout' => array( 
-              'actionField' => array( 'step' => 4, 'option' => 'ViewCart' )
-            ),
-            'products' => $productsArray
-          )
-        );
+        $event = 'view_cart';
+        $action = 'viewcart';
       }
       else if ($_REQUEST['a'] == 'checkout'){
-        $eventArray = array(
-          'event'         => 'checkout',
-          'eventAction'   => 'Checkout',
-          'ecommerce'     => array(
-            'checkout' => array( 
-              'actionField' => array( 'step' => 5, 'option' => 'Checkout' )
-            ),
-            'products' => $productsArray
-          )
-        );
+        $event = 'begin_checkout';
+        $action = 'checkout';
       }
       break;
   }
   
-  $addToCartOutput = '';
-  if ($addToCart){
-    $addToCartOutput = "window.dataLayer.push(" . json_encode(array(
-      'event'     => 'addToCart',
-      'ecommerce' => array(
-        'currencyCode' => $currencyCode,
-        'add'          => array('products' => $productsArray)
-      )
-    )) . ");";
-  }
+  $eventArray = array(
+    'event'         => $event,
+    'eventAction'   => $action,
+    'ecommerce'     => array( 'items' => $itemsArray )
+  );
 
-  if (!empty($eventArray)){
+  if (!empty($eventArray['event'])){
     return "<script id='GTM_DataLayer'>
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ ecommerce: null });
-    window.dataLayer.push(" . json_encode(array_merge($eventArray, $commonArray)) . ");
-    " . $addToCartOutput . "
+    window.dataLayer.push(" . json_encode($eventArray) . ");
     </script>";
   }
 });
@@ -245,62 +192,41 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   $order = $res_orders['orders']['order'][0];
   
   $currencyCode = $order['currencysuffix'];
-  $lang = $vars['activeLocale']['languageCode']; //var does not exist
   
   //if ( $_REQUEST['debug'] ) var_dump($order); ///DEBUG
   
-  $checkoutEventArray = array(
-    'event'         => 'checkout',
-    'eventAction'   => 'PaymentComplete',
-    'value'         => $order['amount'], //for standard event tracking
-    'currencyCode'  => $currencyCode,
-    'language'      => $lang,
-    'template'      => 'complete',
-    'userID'        => $order['userid'],
-    'ecommerce'   => array(
-      'checkout' => array(
-        'actionField' => array('step' => 6, 'option' => 'PaymentComplete')
-      )
-    )
-  );
-  
-  $productsArray = array();
+  $itemsArray = array();
   foreach ($order['lineitems']['lineitem'] as $product){
-    $productsArray[] = array(
-      'name'      => $product['product'],
-      'id'        => $product['relid'],
+    $itemsArray[] = array(
+      'item_name'      => $product['product'],
+      'item_id'        => $product['relid'],
       'price'     => gtm_format_price($product['amount'], $currencyCode),
-      'brand'     => 'Websavers',
-      'category'  => $product['producttype'],
-      'quantity'  => 1,
-      'coupon'    => ''
+      'item_brand'     => 'Websavers',
+      'item_category'  => $product['producttype'],
+      'quantity'  => 1
     );
   }
   
   $res_invoice = localAPI('GetInvoice', array('invoiceid' => $order['invoiceid']));
   $tax = (float)$res_invoice['tax'] + (float)$res_invoice['tax2'];
   
-  $purchaseEventArray = array(
-    'ecommerce'   => array(
-      'currencyCode'  => $currencyCode,
-      'purchase'  => array( //for enhanced ecommerce tracking
-        'actionField'   => array(
-          'id'          => $order['id'],
-          'affiliation' => 'WHMCS Orderform',
-          'revenue'     => $order['amount'], // Total transaction value (incl. tax and shipping)
-          'tax'         => $tax,
-          'coupon'      => $order['promocode']
-        ),
-        'products' => $productsArray
-      )
+  $eventArray = array(
+    'event': 'purchase',
+    'ecommerce'         => array(
+      'transaction_id'  => $order['id'],
+      'affiliation'     => 'WHMCS Orderform',
+      'value'           => $order['amount'], // Total transaction value (incl. tax and shipping)
+      'tax'             => $tax,
+      'shipping'        => '',
+      'currency'        => $currencyCode,
+      'coupon'          => $order['promocode'],
+      'items'           => $itemsArray
     )
   );
 
   return "<script id='GTM_DataLayer'>window.dataLayer = window.dataLayer || []; 
   window.dataLayer.push({ ecommerce: null }); 
-  window.dataLayer.push(" . json_encode($checkoutEventArray) . ");
-  window.dataLayer.push({ ecommerce: null }); 
-  window.dataLayer.push(" . json_encode($purchaseEventArray) . ");
+  window.dataLayer.push(" . json_encode($eventArray) . ");
   </script>";
   
 });
