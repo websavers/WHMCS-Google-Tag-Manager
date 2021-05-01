@@ -264,6 +264,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
   $purchaseEventArray = array(
     'ecommerce'   => array(
+      'currencyCode'  => $currencyCode,
       'purchase'  => array( //for enhanced ecommerce tracking
         'actionField'   => array(
           'id'          => $order['id'],
