@@ -39,6 +39,15 @@ function gtm_format_price($price, $currencyCode){
   return str_replace(['$', $currencyCode],'',$price);
 }
 
+function gtm_ga_module_in_use(){
+  $ga_site_tag = Capsule::table('tbladdonmodules')
+        ->where('module', 'google_analytics')
+        ->where('setting', 'code')
+        ->value('value');
+        
+  return (empty($ga_site_tag)) false:true;
+}
+
 /** The following two hooks output the code required for GTM to function **/
 
 add_hook('ClientAreaHeadOutput', 1, function($vars) {
@@ -68,6 +77,8 @@ height='0' width='0' style='display:none;visibility:hidden'></iframe></noscript>
 /** JavaScript dataLayer Variables **/
 
 add_hook('ClientAreaFooterOutput', 1, function($vars) {
+  
+  if (gtm_ga_module_in_use()) return '';
   
   $productAdded = $vars['productinfo'];
   $domainsAdded = $vars['domains'];
@@ -222,6 +233,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
  * https://developers.whmcs.com/hooks-reference/shopping-cart/#shoppingcartcheckoutcompletepage
  */
 add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
+  
+  if (gtm_ga_module_in_use()) return '';
     
   $res_orders = localAPI('GetOrders', array('id' => $vars['orderid']));
   $order = $res_orders['orders']['order'][0];
