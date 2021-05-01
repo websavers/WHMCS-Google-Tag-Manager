@@ -45,7 +45,7 @@ function gtm_ga_module_in_use(){
         ->where('setting', 'code')
         ->value('value');
         
-  return (empty($ga_site_tag)) false:true;
+  return (empty($ga_site_tag))? false:true;
 }
 
 /** The following two hooks output the code required for GTM to function **/
@@ -77,9 +77,7 @@ height='0' width='0' style='display:none;visibility:hidden'></iframe></noscript>
 /** JavaScript dataLayer Variables **/
 
 add_hook('ClientAreaFooterOutput', 1, function($vars) {
-  
-  if (gtm_ga_module_in_use()) return '';
-  
+    
   $productAdded = $vars['productinfo'];
   $domainsAdded = $vars['domains'];
   $productsAdded = $vars['products']; 
@@ -234,6 +232,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
  */
 add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
+  /* Built in GA module handles the purchase event for us */
   if (gtm_ga_module_in_use()) return '';
     
   $res_orders = localAPI('GetOrders', array('id' => $vars['orderid']));
