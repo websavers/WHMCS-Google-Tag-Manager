@@ -49,9 +49,9 @@ function gtm_ga_module_in_use(){
         ->where('setting', 'ActiveAddonModules')
         ->value('value');
         
-  $is_active = (strpos($active_addons, 'google_analytics') !== false)? true:false;
+  $ga_is_active = (strpos($active_addons, 'google_analytics') !== false)? true:false;
         
-  return (empty($ga_site_tag) && !$is_active)? false:true;
+  return ($ga_is_active && !empty($ga_site_tag))? true:false;
 }
 
 /** The following two hooks output the code required for GTM to function **/
