@@ -230,24 +230,11 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   $lang = $vars['activeLocale']['languageCode']; //var does not exist
   
   //if ( $_REQUEST['debug'] ) var_dump($order); ///DEBUG
-
-  $productsArray = array();
-  foreach ($order['lineitems']['lineitem'] as $product){
-    $productsArray[] = array(
-      'name'      => $product['product'],
-      'id'        => $product['relid'],
-      'price'     => gtm_format_price($product['amount'], $currencyCode),
-      'category'  => $product['producttype'],
-      'quantity'  => 1
-    );
-  }
   
-  $res_invoice = localAPI('GetInvoice', array('invoiceid' => $order['invoiceid']));
-  $tax = (float)$res_invoice['tax'] + (float)$res_invoice['tax2'];
-  
-  $eventArray = array(
-    'event'       => 'checkout',
-    'eventAction' => 'PaymentComplete',
+  $checkoutEventArray = array(
+    'event'         => 'checkout',
+    'eventAction'   => 'PaymentComplete',
+    'value'         => $order['amount'], //for standard event tracking
     'currencyCode'  => $currencyCode,
     'language'      => $lang,
     'template'      => 'complete',
@@ -255,25 +242,47 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     'ecommerce'   => array(
       'checkout' => array(
         'actionField' => array('step' => 6, 'option' => 'PaymentComplete')
-      ),
-      'purchase'  => array(
-        'actionField' => array(
-          'id'        => $order['id'], 
-          'revenue'   => $order['amount'], // Total transaction value (incl. tax and shipping)
-          'tax'       => $tax,
-          'coupon'    => $order['promocode']
+      )
+    )
+  );
+  
+  $productsArray = array();
+  foreach ($order['lineitems']['lineitem'] as $product){
+    $productsArray[] = array(
+      'name'      => $product['product'],
+      'id'        => $product['relid'],
+      'price'     => gtm_format_price($product['amount'], $currencyCode),
+      'brand'     => 'Websavers',
+      'category'  => $product['producttype'],
+      'quantity'  => 1,
+      'coupon'    => ''
+    );
+  }
+  
+  $res_invoice = localAPI('GetInvoice', array('invoiceid' => $order['invoiceid']));
+  $tax = (float)$res_invoice['tax'] + (float)$res_invoice['tax2'];
+  
+  $purchaseEventArray = array(
+    'ecommerce'   => array(
+      'purchase'  => array( //for enhanced ecommerce tracking
+        'actionField'   => array(
+          'id'          => $order['id'],
+          'affiliation' => 'WHMCS Orderform',
+          'revenue'     => $order['amount'], // Total transaction value (incl. tax and shipping)
+          'tax'         => $tax,
+          'coupon'      => $order['promocode']
         ),
-        'products'    => $productsArray
+        'products' => $productsArray
       )
     )
   );
 
-  if (!empty($eventArray)){
-    return "<script id='GTM_DataLayer'>window.dataLayer = window.dataLayer || []; 
-    window.dataLayer.push({ ecommerce: null }); 
-    window.dataLayer.push(" . json_encode($eventArray) . ");
-    </script>";
-  }
+  return "<script id='GTM_DataLayer'>window.dataLayer = window.dataLayer || []; 
+  window.dataLayer.push({ ecommerce: null }); 
+  window.dataLayer.push(" . json_encode($checkoutEventArray) . ");
+  window.dataLayer.push({ ecommerce: null }); 
+  window.dataLayer.push(" . json_encode($purchaseEventArray) . ");
+  </script>";
   
 });
 
