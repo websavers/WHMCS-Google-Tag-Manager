@@ -45,7 +45,13 @@ function gtm_ga_module_in_use(){
         ->where('setting', 'code')
         ->value('value');
         
-  return (empty($ga_site_tag))? false:true;
+  $active_addons = Capsule::table('tblconfiguration')
+        ->where('setting', 'ActiveAddonModules')
+        ->value('value');
+        
+  $is_active = (strpos($active_addons, 'google_analytics') !== false)? true:false;
+        
+  return (empty($ga_site_tag) && !$is_active)? false:true;
 }
 
 /** The following two hooks output the code required for GTM to function **/
