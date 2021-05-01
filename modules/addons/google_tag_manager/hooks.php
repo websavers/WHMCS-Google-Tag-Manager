@@ -186,7 +186,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
 add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
   /* Built in GA module handles the purchase event for us */
-  if (gtm_ga_module_in_use()) return '';
+  //if (gtm_ga_module_in_use()) return '';
     
   $res_orders = localAPI('GetOrders', array('id' => $vars['orderid']));
   $order = $res_orders['orders']['order'][0];
@@ -197,12 +197,13 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
   $itemsArray = array();
   foreach ($order['lineitems']['lineitem'] as $product){
+    $prod_name_group = explode(' - ', $product['product']);
     $itemsArray[] = array(
-      'item_name'      => $product['product'],
+      'item_name'      => $prod_name_group[1],
       'item_id'        => $product['relid'],
       'price'     => gtm_format_price($product['amount'], $currencyCode),
       'item_brand'     => 'Websavers',
-      'item_category'  => $product['producttype'],
+      'item_category'  => $prod_name_group[0],
       'quantity'  => 1
     );
   }
@@ -211,7 +212,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   $tax = (float)$res_invoice['tax'] + (float)$res_invoice['tax2'];
   
   $eventArray = array(
-    'event': 'purchase',
+    'event' => 'purchase',
     'ecommerce'         => array(
       'transaction_id'  => $order['id'],
       'affiliation'     => 'WHMCS Orderform',
