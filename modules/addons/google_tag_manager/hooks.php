@@ -143,19 +143,19 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       
     case 'configureproduct':
 
-      $event = 'add_to_cart';
+      $event = 'view_item';
       $action = 'configureproduct';
       break;
       
     case 'configuredomains':
     
-      $event = 'add_to_cart';
+      $event = 'view_item';
       $action = 'configuredomains';
       break; 
       
     case 'viewcart':
       if ($_REQUEST['a'] == 'view'){
-        $event = 'view_cart';
+        $event = 'add_to_cart';
         $action = 'viewcart';
       }
       else if ($_REQUEST['a'] == 'checkout'){
@@ -201,10 +201,10 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     $itemsArray[] = array(
       'item_name'      => $prod_name_group[1],
       'item_id'        => $product['relid'],
-      'price'     => gtm_format_price($product['amount'], $currencyCode),
+      'price'          => gtm_format_price($product['amount'], $currencyCode),
       'item_brand'     => 'Websavers',
       'item_category'  => $prod_name_group[0],
-      'quantity'  => 1
+      'quantity'       => 1
     );
   }
   
@@ -213,7 +213,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
   $eventArray = array(
     'event' => 'purchase',
-    'ecommerce'         => array(
+    'ecommerce' => array(
       'transaction_id'  => $order['id'],
       'affiliation'     => 'WHMCS Orderform',
       'value'           => $order['amount'], // Total transaction value (incl. tax and shipping)
