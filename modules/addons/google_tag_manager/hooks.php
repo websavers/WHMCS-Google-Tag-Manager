@@ -237,15 +237,14 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     $p_g_n = explode(' - ', $product['product']);
     if ( count($p_g_n) == 1 ){ 
       $category = '';
-      $itemname = $product['product'];
+      $name = $product['product'];
     }
     else if ( count($p_g_n) == 2 ){
       $category = $p_g_n[0];
-      $itemname = $p_g_n[1];
+      $name = $p_g_n[1];
     }
-    $itemname = $prod_name_group[1];
     $itemsArray[] = array(
-      'item_name'      => $itemname,
+      'item_name'      => $name,
       'item_id'        => $product['relid'],
       'price'          => gtm_format_price($product['amount'], $currencyCode, $currencyPrefix),
       'item_brand'     => '',
