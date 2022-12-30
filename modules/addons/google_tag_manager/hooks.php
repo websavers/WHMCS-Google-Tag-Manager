@@ -234,13 +234,22 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
   $itemsArray = array();
   foreach ($order['lineitems']['lineitem'] as $product){
-    $prod_name_group = explode(' - ', $product['product']);
+    $p_g_n = explode(' - ', $product['product']);
+    if ( count($p_g_n) == 1 ){ 
+      $category = '';
+      $itemname = $product['product'];
+    }
+    else if ( count($p_g_n) == 2 ){
+      $category = $p_g_n[0];
+      $itemname = $p_g_n[1];
+    }
+    $itemname = $prod_name_group[1];
     $itemsArray[] = array(
-      'item_name'      => $prod_name_group[1],
+      'item_name'      => $itemname,
       'item_id'        => $product['relid'],
       'price'          => gtm_format_price($product['amount'], $currencyCode, $currencyPrefix),
-      'item_brand'     => 'Websavers',
-      'item_category'  => $prod_name_group[0],
+      'item_brand'     => '',
+      'item_category'  => $category,
       'quantity'       => 1
     );
   }
