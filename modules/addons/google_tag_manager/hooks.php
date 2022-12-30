@@ -179,13 +179,16 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
 
     $js_events .= '
     // Empty Cart Event
-    document.getElementById("btnEmptyCart").onclick = function(){
-      dataLayer.push({ ecommerce: null });  // Clear the previous ecommerce object.
-      dataLayer.push({
-        event: "remove_from_cart",
-        ecommerce: { items: ' . json_encode($itemsArray) . ' }
-      });
-    };';
+    var emptyCartButton = document.getElementById("btnEmptyCart");
+    if (emptyCartButton != null) {
+      document.getElementById("btnEmptyCart").onclick = function(){
+        dataLayer.push({ ecommerce: null });  // Clear the previous ecommerce object.
+        dataLayer.push({
+          event: "remove_from_cart",
+          ecommerce: { items: ' . json_encode($itemsArray) . ' }
+        });
+      };
+    }';
 
   }
 
