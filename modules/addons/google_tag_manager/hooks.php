@@ -198,7 +198,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     );
 
     return "<script id='GTM_DataLayer'>
-    dataLayer.push({ ecommerce: null });
+    dataLayer.push({ ecommerce: null });  // Clear the previous ecommerce object.
     dataLayer.push(" . json_encode($eventArray) . ");
     " . $js_events . "
 </script>";
@@ -260,7 +260,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   );
 
   return "<script id='GTM_DataLayer'>
-    dataLayer.push({ ecommerce: null }); 
+    dataLayer.push({ ecommerce: null });  // Clear the previous ecommerce object.
     dataLayer.push(" . json_encode($eventArray) . ");
   </script>";
   
