@@ -61,7 +61,7 @@ add_hook('ClientAreaHeadOutput', 1, function($vars) {
   $container_id = gtm_get_module_settings('gtm-container-id');
   if (!empty($container_id)):
     return "<!-- Google Tag Manager -->
-<script>dataLayer = [];</script>
+<script>window.dataLayer = window.dataLayer || [];</script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -185,8 +185,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         event: "remove_from_cart",
         ecommerce: { items: ' . json_encode($itemsArray) . ' }
       });
-    };
-    ';
+    };';
 
   }
 
@@ -199,11 +198,10 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     );
 
     return "<script id='GTM_DataLayer'>
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ ecommerce: null });
-    window.dataLayer.push(" . json_encode($eventArray) . ");
+    dataLayer.push({ ecommerce: null });
+    dataLayer.push(" . json_encode($eventArray) . ");
     " . $js_events . "
-    </script>";
+</script>";
 
   }
   
@@ -261,9 +259,9 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     )
   );
 
-  return "<script id='GTM_DataLayer'>window.dataLayer = window.dataLayer || []; 
-  window.dataLayer.push({ ecommerce: null }); 
-  window.dataLayer.push(" . json_encode($eventArray) . ");
+  return "<script id='GTM_DataLayer'>
+    dataLayer.push({ ecommerce: null }); 
+    dataLayer.push(" . json_encode($eventArray) . ");
   </script>";
   
 });
