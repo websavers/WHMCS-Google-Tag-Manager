@@ -177,6 +177,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
 
   if ($action === 'viewcart'){
 
+    //Single item remove buttons have this: onclick="removeItem('p','0')" -- product (p) i or domain (d) i
     $js_events .= '
     // Empty Cart Event
     document.getElementById("btnEmptyCart").onclick = function(){
@@ -186,6 +187,11 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         ecommerce: { items: ' . json_encode($itemsArray) . ' }
       });
     };
+    // Remove Item Event
+    const remove_buttons = document.querySelectorAll(".btn-remove-from-cart");
+    for (const remove of [...remove_buttons]) {
+      //Do removal here.
+    }
     ';
 
   }
