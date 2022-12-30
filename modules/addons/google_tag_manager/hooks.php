@@ -183,7 +183,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       dataLayer.push({ ecommerce: null });  // Clear the previous ecommerce object.
       dataLayer.push({
         event: "remove_from_cart",
-        ecommerce: { items: ' . $itemsArray . ' }
+        ecommerce: { items: ' . json_encode($itemsArray) . ' }
       });
     };
     ';
