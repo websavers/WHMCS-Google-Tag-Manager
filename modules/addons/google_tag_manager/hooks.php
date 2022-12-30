@@ -35,8 +35,9 @@ function gtm_get_module_settings($setting){
     
 }
 
-function gtm_format_price($price, $currencyCode){
-  return str_replace(['$', $currencyCode],'',$price);
+//Remove currency prefix and code, like $ and CAD. Swap comma for dot separator.
+function gtm_format_price($price, $currencyCode, $prefix){ 
+  return str_ireplace([$prefix, ',', ' ', $currencyCode],['','.','',''],$price); 
 }
 
 function gtm_ga_module_in_use(){
@@ -90,6 +91,13 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   
   $currencyCode = $vars['activeCurrency']['code'];
   $lang = $vars['activeLocale']['languageCode'];
+
+  $currencyPrefix = '$'; //default, get live currency prefix below
+  foreach ( $vars['currencies'] as $currency ){
+    if ($currency['code'] === $currencyCode){
+      $currencyPrefix = $currency['prefix']; 
+    }
+  }
   
   //if ( $_REQUEST['debug'] ) var_dump($vars['activeCurrency']['code']); ///DEBUG
   
@@ -102,7 +110,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     $itemsArray[] = array(
       'item_name'      => $productAdded['name'],
       'item_id'        => $productAdded['pid'],
-      'price'     => gtm_format_price($price, $currencyCode),
+      'price'     => gtm_format_price($price, $currencyCode, $currencyPrefix), //uses rawpricing so prefix technically doesn't matter
       'item_category'  => $productAdded['group_name'],
       'quantity'  => 1
     );
@@ -111,7 +119,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     foreach($domainsAdded as $domain){
       $itemsArray[] = array(                        
         'name'      => "Domain: " . $domain['domain'],
-        'price'     => gtm_format_price($domain['price'], $currencyCode),
+        'price'     => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
         'category'  => 'Domain Registration',
         'quantity'  => 1
       );
@@ -124,7 +132,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       $itemsArray[] = array(                       
         'name'      => $productAdded['productinfo']['name'],
         'id'        => $productAdded['productinfo']['pid'],
-        'price'     => gtm_format_price($price, $currencyCode),
+        'price'     => gtm_format_price($price, $currencyCode, $currencyPrefix),
         'category'  => $productAdded['productinfo']['groupname'],
         'quantity'  => 1
       );
