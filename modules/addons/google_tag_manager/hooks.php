@@ -127,8 +127,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   }
   if (!empty($productsAdded)){ //viewcart
     foreach($productsAdded as $productAdded){
-      $selectedCycle = $productAdded['billingcyclefriendly'];
-      $price = (string)$productAdded['pricing']['recurring'][$selectedCycle];
+      //$price = (string)$productAdded['pricing']['totaltoday'];
+      $price = $productAdded['pricingtext'];
       $itemsArray[] = array(                       
         'name'      => $productAdded['productinfo']['name'],
         'id'        => $productAdded['productinfo']['pid'],
