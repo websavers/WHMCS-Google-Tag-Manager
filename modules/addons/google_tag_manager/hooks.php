@@ -200,6 +200,13 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   $order = $res_orders['orders']['order'][0];
   
   $currencyCode = $order['currencysuffix'];
+
+  $currencyPrefix = '$'; //default, get live currency prefix below
+  foreach ( $vars['currencies'] as $currency ){
+    if ($currency['code'] === $currencyCode){
+      $currencyPrefix = $currency['prefix']; 
+    }
+  }
   
   //if ( $_REQUEST['debug'] ) var_dump($order); ///DEBUG
   
@@ -209,7 +216,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
     $itemsArray[] = array(
       'item_name'      => $prod_name_group[1],
       'item_id'        => $product['relid'],
-      'price'          => gtm_format_price($product['amount'], $currencyCode),
+      'price'          => gtm_format_price($product['amount'], $currencyCode, $currencyPrefix),
       'item_brand'     => 'Websavers',
       'item_category'  => $prod_name_group[0],
       'quantity'       => 1
