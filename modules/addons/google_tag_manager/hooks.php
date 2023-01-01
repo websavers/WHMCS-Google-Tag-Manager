@@ -58,7 +58,9 @@ function gtm_ga_module_in_use(){
 /** The following two hooks output the code required for GTM to function **/
 
 add_hook('ClientAreaHeadOutput', 1, function($vars) {
+  
   $container_id = gtm_get_module_settings('gtm-container-id');
+
   if (!empty($container_id)):
     return "<!-- Google Tag Manager -->
 <script>window.dataLayer = window.dataLayer || [];</script>
@@ -69,9 +71,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','$container_id');</script>
 <!-- End Google Tag Manager -->";
   endif;
+
 });
 
 add_hook('ClientAreaHeaderOutput', 1, function($vars) {
+
   $container_id = gtm_get_module_settings('gtm-container-id');
   if (!empty($container_id)):
     return "<!-- Google Tag Manager (noscript) -->
@@ -79,11 +83,14 @@ add_hook('ClientAreaHeaderOutput', 1, function($vars) {
 height='0' width='0' style='display:none;visibility:hidden'></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->";
   endif;
+
 });
 
 /** JavaScript dataLayer Variables **/
 
 add_hook('ClientAreaFooterOutput', 1, function($vars) {
+
+  if ( gtm_get_module_settings('gtm-enable-datalayer') == 'off' ) return '';
     
   $productAdded = $vars['productinfo'];
   $domainsAdded = $vars['domains'];
@@ -214,9 +221,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
  * https://developers.whmcs.com/hooks-reference/shopping-cart/#shoppingcartcheckoutcompletepage
  */
 add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
-  
-  /* Built in GA module handles the purchase event for us */
-  //if (gtm_ga_module_in_use()) return '';
+
+  if ( gtm_get_module_settings('gtm-enable-datalayer') == 'off' ) return '';
     
   $res_orders = localAPI('GetOrders', array('id' => $vars['orderid']));
   $order = $res_orders['orders']['order'][0];

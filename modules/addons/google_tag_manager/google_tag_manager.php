@@ -55,7 +55,7 @@ if (!defined("WHMCS")) {
 function google_tag_manager_config(){
     return [
         'name' => 'Google Tag Manager',
-        'description' => 'Automatically includes the GTM embed codes and provides the necessary JavaScript dataLayer for eCommerce variables',
+        'description' => 'Automatically includes the GTM embed codes and provides the necessary JavaScript dataLayer for eCommerce events',
         'author' => 'Websavers Inc.',
         'language' => 'english',
         'version' => '1.0',
@@ -66,6 +66,12 @@ function google_tag_manager_config(){
                 'Size' => '15',
                 'Placeholder' => 'GTM-0123456',
                 'Description' => 'Enter your GTM container ID here.',
+            ],
+            'gtm-enable-datalayer' => [
+                'FriendlyName' => 'Push DataLayer Events Automatically',
+                'Type' => 'yesno',
+                'Default' => 'yes',
+                'Description' => 'Disable this if you will be using Google Tag Manager to create your events and DataLayer variables',
             ],
         ]
     ];
