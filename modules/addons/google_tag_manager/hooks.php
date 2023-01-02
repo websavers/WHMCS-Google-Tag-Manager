@@ -125,9 +125,9 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   if (!empty($domainsAdded)){ //domain config
     foreach($domainsAdded as $domain){
       $itemsArray[] = array(                        
-        'name'      => "Domain: " . $domain['domain'],
+        'name'      => ucfirst($domain['type']), //Register, Transfer, Renewal
         'price'     => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
-        'category'  => 'Domain Registration',
+        'category'  => 'Domain',
         'quantity'  => 1
       );
     }
