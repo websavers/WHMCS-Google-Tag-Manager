@@ -17,9 +17,25 @@ to enter your Google Tag Manager Container ID. Enter it and save changes.
 - Connect GTM to Google Analytics as per the Google guide. Be sure you're 
 connecting to a Google Analytics 4 property ID
 
-## Google Analytics Ecommerce Steps ##
+## Google Analytics 4 Ecommerce Integration ##
 
-{Update here with GA4 configuration.}
+Begin by following the Google's Analytics configuration guide for Tag Manager: https://support.google.com/tagmanager/answer/9442095?hl=en
+
+Then create your GA 4 Event Tags as follows. For each of these event tags, make sure to configure them as follows:
+- Tag Type: Google Analytics: GA4 Event
+- More Settings > Ecommerce > Send Ecommerce data (with the Data source set to Data Layer)
+- Triggering: Create a trigger with a custom event where the event name is set to "view_item_list|select_item|view_item|add_to_cart|begin_checkout|purchase" and enable regex matching.
+
+List of event tag names:
+
+1. View Item Event. Event Name: view_item
+2. Add to Cart Event. Event Name: add_to_cart
+3. Begin Checkout Event. Event Name: begin_checkout
+4. Purchase Event. Event Name: purchase
+
+The "Event Name" values will match with the HTML/JS markup this module generates, and enabling the Ecommerce data via Data Layer will ensure it captures the ecommerce data within that markup. This data will automatically fill out your Analytics report under Monetization > Ecommerce purchases.
+
+Google's general guide to GA 4 event tags in tag manager can be found here: https://support.google.com/tagmanager/answer/13034206
 
 ## Developer Notes ##
 
