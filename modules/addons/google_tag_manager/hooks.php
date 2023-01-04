@@ -122,14 +122,16 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       'quantity'  => 1
     );
   }
-  if (!empty($domainsAdded)){ //domain config
+  if (!empty($domainsAdded) && is_array($domainsAdded)){ //domain config
     foreach($domainsAdded as $domain){
-      $itemsArray[] = array(                        
-        'name'      => ucfirst($domain['type']), //Register, Transfer, Renewal
-        'price'     => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
-        'category'  => 'Domain',
-        'quantity'  => 1
-      );
+      if (is_array($domain)){
+        $itemsArray[] = array(                        
+          'name'      => ucfirst($domain['type']), //Register, Transfer, Renewal
+          'price'     => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
+          'category'  => 'Domain',
+          'quantity'  => 1
+        );
+     }
     }
   }
   if (!empty($productsAdded)){ //viewcart
