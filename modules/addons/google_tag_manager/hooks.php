@@ -148,12 +148,14 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     
   switch ($vars['templatefile']){
 		
+    /*
     case 'configureproductdomain':
     
       $event = 'domain_selection';
       $action = 'configureproductdomain';
       break;
-      
+    */
+
     case 'configureproduct':
 
       $event = 'view_item';
@@ -199,7 +201,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
 
   }
 
-  if (!empty($event)){
+  if (!empty($itemsArray) && !empty($event)){
   
     $eventArray = array(
       'event'         => $event,
