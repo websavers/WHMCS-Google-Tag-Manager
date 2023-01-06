@@ -115,11 +115,11 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
 
     $itemsArray[] = array(
-      'item_name'      => $productAdded['name'],
-      'item_id'        => $productAdded['pid'],
-      'price'     => gtm_format_price($price, $currencyCode, $currencyPrefix), //uses rawpricing so prefix technically doesn't matter
-      'item_category'  => $productAdded['group_name'],
-      'quantity'  => 1
+      'item_name'       => htmlspecialchars_decode($productAdded['name']),
+      'item_id'         => $productAdded['pid'],
+      'price'           => gtm_format_price($price, $currencyCode, $currencyPrefix), //uses rawpricing so prefix technically doesn't matter
+      'item_category'   => $productAdded['group_name'],
+      'quantity'        => 1
     );
   }
   if (!empty($domainsAdded) && is_array($domainsAdded)){ //domain config
@@ -139,7 +139,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       //$price = (string)$productAdded['pricing']['totaltoday'];
       $price = $productAdded['pricingtext'];
       $itemsArray[] = array(                       
-        'name'      => $productAdded['productinfo']['name'],
+        'name'      => htmlspecialchars_decode($productAdded['productinfo']['name']),
         'id'        => $productAdded['productinfo']['pid'],
         'price'     => gtm_format_price($price, $currencyCode, $currencyPrefix),
         'category'  => $productAdded['productinfo']['groupname'],
