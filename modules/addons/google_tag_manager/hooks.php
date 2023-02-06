@@ -234,11 +234,13 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   $currencyCode = $order['currencysuffix'];
 
   $currencyPrefix = '$'; //default, get live currency prefix below
-  foreach ( $vars['currencies'] as $currency ){
-    if ($currency['code'] === $currencyCode){
-      $currencyPrefix = $currency['prefix']; 
+  if (!is_null($vars['currencies'])){
+    foreach ( $vars['currencies'] as $currency ){
+      if ($currency['code'] === $currencyCode){
+        $currencyPrefix = $currency['prefix']; 
+      }
     }
-  }
+  } 
   
   //if ( $_REQUEST['debug'] ) var_dump($order); ///DEBUG
   
