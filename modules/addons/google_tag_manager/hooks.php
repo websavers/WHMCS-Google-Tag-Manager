@@ -289,3 +289,24 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
 });
 
+/**
+ * https://developers.whmcs.com/hooks-reference/client-area-interface/#clientarearegister
+ * https://whmcs.community/messenger/79323/?tab=comments#comment-88979
+ */
+add_hook('ClientAreaRegister', 1, function($vars) {
+
+  if ( gtm_get_module_settings('gtm-enable-datalayer') == 'off' ) return '';
+
+  $results = localAPI('GetClientsDetails', array('clientid' => $vars['client_id']));
+
+  $signupEvent = array(
+      'event' => 'sign_up',
+      'userId' => $vars['client_id'],
+      'country' => $results['client']['countryname'],
+      'referrer_source' => $results['client']['customfields1'],
+      'company_name' => $results['companyname']
+  );
+  return "<script id='GTM_DataLayer'>
+  dataLayer.push(" . json_encode($signupEvent) . ");
+</script>";
+});
