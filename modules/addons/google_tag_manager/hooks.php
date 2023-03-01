@@ -301,7 +301,7 @@ add_hook('ClientAreaRegister', 1, function($vars) {
 
   $signupEvent = array(
       'event' => 'sign_up',
-      'userId' => $vars['client_id'],
+      'user_id' => $vars['client_id'],
       'country' => $results['client']['countryname'],
       'referrer_source' => $results['client']['customfields1'],
       'company_name' => $results['companyname']
