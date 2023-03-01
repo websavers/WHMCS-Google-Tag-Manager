@@ -297,14 +297,16 @@ add_hook('ClientAreaRegister', 1, function($vars) {
 
   if ( gtm_get_module_settings('gtm-enable-datalayer') == 'off' ) return '';
 
-  $results = localAPI('GetClientsDetails', array('clientid' => $vars['client_id']));
+  $clientdata = localAPI('GetClientsDetails', array('clientid' => $vars['client_id']));
+  if ($clientdata['result'] !== 'success') return;
 
   $signupEvent = array(
-      'event' => 'sign_up',
-      'user_id' => $vars['client_id'],
-      'country' => $results['client']['countryname'],
-      'referrer_source' => $results['client']['customfields1'],
-      'company_name' => $results['companyname']
+      'event'           => 'sign_up',
+      'method'          => 'WHMCS',
+      'user_id'         => $vars['client_id'],
+      'country'         => $clientdata['client']['countryname'],
+      'referrer_source' => $clientdata['client']['customfields1'], //TODO: Actually find the correct "How did you find us?" custom field to use here
+      'company_name'    => $clientdata['companyname']
   );
   return "<script id='GTM_DataLayer'>
   dataLayer.push(" . json_encode($signupEvent) . ");
