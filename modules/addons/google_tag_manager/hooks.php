@@ -291,7 +291,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
 
 /**
  * https://developers.whmcs.com/hooks-reference/client-area-interface/#clientarearegister
- * https://whmcs.community/messenger/79323/?tab=comments#comment-88979
+ * Original code for this action provided by @File_Explorer on WHMCS Community Forums
  */
 add_hook('ClientAreaRegister', 1, function($vars) {
 
