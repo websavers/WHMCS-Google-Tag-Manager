@@ -44,8 +44,6 @@ https://developers.google.com/tag-manager/ecommerce-ga4
 
 ## Minimum Requirements ##
 
-Only tested with WHMCS 8.3 and newer. 
+Only tested with WHMCS 8.3 and newer. Tested working up to WHMCS 8.7.2.
 
-This is an open source module. Please do not request features be added, however 
-we welcome you to look through the code, add whatever features you want and fix 
-any bugs you see, then create a pull request for it to be included in core.
+This is an open source module provided free of charge and without support. Please do not request features be added, however we welcome you to look through the code, add whatever features you want and fix any bugs you see, then create a pull request for it to be included in core.
