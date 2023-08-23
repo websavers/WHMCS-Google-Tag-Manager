@@ -228,7 +228,7 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
   $currencyCode = $order['currencysuffix'];
 
-  $currencyPrefix =  $currencyPrefix = $vars['WHMCSCurrency']['prefix'];
+  $currencyPrefix = $order['currencyprefix'];
 	
   //if ( $_REQUEST['debug'] ) var_dump($order); ///DEBUG
   
