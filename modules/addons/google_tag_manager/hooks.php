@@ -132,7 +132,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   if (!empty($productsAdded)){ //viewcart
     foreach($productsAdded as $productAdded){
       //https://classdocs.whmcs.com/8.1/WHMCS/View/Formatter/Price.html
-      $price_obj = (string)$productAdded['pricing']['baseprice'];
+      $price_obj = $productAdded['pricing']['baseprice'];
       $price = $price_obj->toNumeric();
       $itemsArray[] = array(                       
         'name'      => htmlspecialchars_decode($productAdded['productinfo']['name']),
