@@ -99,12 +99,7 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   $currencyCode = $vars['activeCurrency']['code'];
   $lang = $vars['activeLocale']['languageCode'];
 
-  $currencyPrefix = '$'; //default, get live currency prefix below
-  foreach ( $vars['currencies'] as $currency ){
-    if ($currency['code'] === $currencyCode){
-      $currencyPrefix = $currency['prefix']; 
-    }
-  }
+  $currencyPrefix = $vars['WHMCSCurrency']['prefix']; 
   
   //if ( $_REQUEST['debug'] ) var_dump($vars['activeCurrency']['code']); ///DEBUG
   
@@ -233,15 +228,8 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
   $currencyCode = $order['currencysuffix'];
 
-  $currencyPrefix = '$'; //default, get live currency prefix below
-  if (!is_null($vars['currencies'])){
-    foreach ( $vars['currencies'] as $currency ){
-      if ($currency['code'] === $currencyCode){
-        $currencyPrefix = $currency['prefix']; 
-      }
-    }
-  } 
-  
+  $currencyPrefix = $order['currencyprefix'];
+	
   //if ( $_REQUEST['debug'] ) var_dump($order); ///DEBUG
   
   $itemsArray = array();
