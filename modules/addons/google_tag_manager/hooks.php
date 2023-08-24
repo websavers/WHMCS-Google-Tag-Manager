@@ -131,12 +131,13 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
   }
   if (!empty($productsAdded)){ //viewcart
     foreach($productsAdded as $productAdded){
-      //$price = (string)$productAdded['pricing']['totaltoday'];
-      $price = $productAdded['pricingtext'];
+      //https://classdocs.whmcs.com/8.1/WHMCS/View/Formatter/Price.html
+      $price_obj = (string)$productAdded['pricing']['baseprice'];
+      $price = $price_obj->toNumeric();
       $itemsArray[] = array(                       
         'name'      => htmlspecialchars_decode($productAdded['productinfo']['name']),
         'id'        => $productAdded['productinfo']['pid'],
-        'price'     => gtm_format_price($price, $currencyCode, $currencyPrefix),
+        'price'     => $price, //don't need formatter since we received it formatted
         'category'  => $productAdded['productinfo']['groupname'],
         'quantity'  => 1
       );
@@ -227,7 +228,6 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   $order = $res_orders['orders']['order'][0];
   
   $currencyCode = $order['currencysuffix'];
-
   $currencyPrefix = $order['currencyprefix'];
 	
   //if ( $_REQUEST['debug'] ) var_dump($order); ///DEBUG
