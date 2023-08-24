@@ -58,7 +58,7 @@ function google_tag_manager_config(){
         'description' => 'Automatically includes the GTM embed codes and provides the necessary JavaScript dataLayer for eCommerce events',
         'author' => 'Websavers Inc.',
         'language' => 'english',
-        'version' => '2.0',
+        'version' => '3.0',
         'fields' => [
             'gtm-container-id' => [
                 'FriendlyName' => 'GTM Container ID',
