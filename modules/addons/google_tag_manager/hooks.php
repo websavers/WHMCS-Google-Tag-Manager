@@ -91,83 +91,68 @@ height='0' width='0' style='display:none;visibility:hidden'></iframe></noscript>
 add_hook('ClientAreaFooterOutput', 1, function($vars) {
 
   if ( gtm_get_module_settings('gtm-enable-datalayer') == 'off' ) return '';
-    
-  $productAdded = $vars['productinfo'];
-  $domainsAdded = $vars['domains'];
-  $productsAdded = $vars['products']; 
-  
-  $currencyCode = $vars['activeCurrency']['code'];
+  // https://classdocs.whmcs.com/7.6/WHMCS/Billing/Currency.html
+  $currency = $vars['activeCurrency']; //obj
+  $currencyCode = $currency->code;
+  $currencyPrefix = $currency->prefix; 
   $lang = $vars['activeLocale']['languageCode'];
 
-  $currencyPrefix = $vars['WHMCSCurrency']['prefix']; 
-  
-  //if ( $_REQUEST['debug'] ) var_dump($vars['activeCurrency']['code']); ///DEBUG
-  
   $itemsArray = array();
-  
-  if (!empty($productAdded)){ //product config
-    $selectedCycle = $vars['billingcycle'];
-    $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
+  $js_events = '';
 
-    $itemsArray[] = array(
-      'item_name'       => htmlspecialchars_decode($productAdded['name']),
-      'item_id'         => $productAdded['pid'],
-      'price'           => gtm_format_price($price, $currencyCode, $currencyPrefix), //uses rawpricing so prefix technically doesn't matter
-      'item_category'   => $productAdded['group_name'],
-      'quantity'        => 1
-    );
-  }
-  if (!empty($domainsAdded) && is_array($domainsAdded)){ //domain config
-    foreach($domainsAdded as $domain){
-      if (is_array($domain)){
-        $itemsArray[] = array(                        
-          'name'      => ucfirst($domain['type']), //Register, Transfer, Renewal
-          'price'     => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
-          'category'  => 'Domain',
-          'quantity'  => 1
-        );
-     }
-    }
-  }
-  if (!empty($productsAdded)){ //viewcart
-    foreach($productsAdded as $productAdded){
-      //https://classdocs.whmcs.com/8.1/WHMCS/View/Formatter/Price.html
-      $price_obj = $productAdded['pricing']['baseprice'];
-      $price = $price_obj->toNumeric();
-      $itemsArray[] = array(                       
-        'name'      => htmlspecialchars_decode($productAdded['productinfo']['name']),
-        'id'        => $productAdded['productinfo']['pid'],
-        'price'     => $price, //don't need formatter since we received it formatted
-        'category'  => $productAdded['productinfo']['groupname'],
-        'quantity'  => 1
-      );
-    }
-  }
-    
-  switch ($vars['templatefile']){
-		
-    /*
-    case 'configureproductdomain':
-    
-      $event = 'domain_selection';
-      $action = 'configureproductdomain';
-      break;
-    */
+  switch($vars['templatefile']){
 
     case 'configureproduct':
 
+      $productAdded = $vars['productinfo'];
+      $selectedCycle = $vars['billingcycle'];
+      $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
+  
+      $itemsArray[] = array(
+        'item_name'       => htmlspecialchars_decode($productAdded['name']),
+        'item_id'         => $productAdded['pid'],
+        'price'           => gtm_format_price($price, $currencyCode, $currencyPrefix), //uses rawpricing so prefix technically doesn't matter
+        'item_category'   => $productAdded['group_name'],
+        'quantity'        => 1
+      );
       $event = 'view_item';
       $action = 'configureproduct';
+
       break;
-      
+
     case 'configuredomains':
-    
+
+      if (is_array($vars['domains'])){ //domain config
+        foreach($vars['domains'] as $domain){
+          if (is_array($domain)){
+            $itemsArray[] = array(                        
+              'name'      => ucfirst($domain['type']), //Register, Transfer, Renewal
+              'price'     => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
+              'category'  => 'Domain',
+              'quantity'  => 1
+            );
+         }
+        }
+      }
       $event = 'view_item';
       $action = 'configuredomains';
-      break; 
-      
+
+      break;
+
     case 'viewcart':
 
+      foreach($vars['products'] as $productAdded){
+        //https://classdocs.whmcs.com/8.1/WHMCS/View/Formatter/Price.html
+        $price = $productAdded['pricing']['baseprice'];
+        if (is_object($price)) $price = $price->toNumeric();
+        $itemsArray[] = array(                       
+          'name'      => htmlspecialchars_decode($productAdded['productinfo']['name']),
+          'id'        => $productAdded['productinfo']['pid'],
+          'price'     => $price, //don't need formatter since we received it formatted
+          'category'  => $productAdded['productinfo']['groupname'],
+          'quantity'  => 1
+        );
+      }
       if ($_REQUEST['a'] == 'view'){
         $event = 'add_to_cart';
         $action = 'viewcart';
@@ -176,26 +161,21 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         $event = 'begin_checkout';
         $action = 'checkout';
       }
+
+      $js_events .= '
+      // Empty Cart Event
+      var emptyCartButton = document.getElementById("btnEmptyCart");
+      if (emptyCartButton != null) {
+        document.getElementById("btnEmptyCart").onclick = function(){
+          dataLayer.push({ ecommerce: null });  // Clear the previous ecommerce object.
+          dataLayer.push({
+            event: "remove_from_cart",
+            ecommerce: { items: ' . json_encode($itemsArray) . ' }
+          });
+        };
+      }';
+
       break;
-
-  }
-
-  $js_events = '';
-
-  if ($action === 'viewcart'){
-
-    $js_events .= '
-    // Empty Cart Event
-    var emptyCartButton = document.getElementById("btnEmptyCart");
-    if (emptyCartButton != null) {
-      document.getElementById("btnEmptyCart").onclick = function(){
-        dataLayer.push({ ecommerce: null });  // Clear the previous ecommerce object.
-        dataLayer.push({
-          event: "remove_from_cart",
-          ecommerce: { items: ' . json_encode($itemsArray) . ' }
-        });
-      };
-    }';
 
   }
 
