@@ -106,7 +106,11 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
 
       $productAdded = $vars['productinfo'];
       $selectedCycle = $vars['billingcycle'];
-      $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
+      if ($vars['pricing']['type'] == "onetime") {
+        $price = (string)$vars['pricing']['minprice']['simple'];
+      } else {
+        $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
+      }
   
       $itemsArray[] = array(
         'item_name'       => htmlspecialchars_decode($productAdded['name']),
