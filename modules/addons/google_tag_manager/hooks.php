@@ -106,7 +106,11 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
 
       $productAdded = $vars['productinfo'];
       $selectedCycle = $vars['billingcycle'];
-      $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
+      if ($vars['pricing']['type'] == "onetime") {
+        $price = (string)$vars['pricing']['minprice']['simple'];
+      } else {
+        $price = (string)$vars['pricing']['rawpricing'][$selectedCycle];
+      }
   
       $itemsArray[] = array(
         'item_name'       => htmlspecialchars_decode($productAdded['name']),
@@ -152,6 +156,17 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
           'category'  => $productAdded['productinfo']['groupname'],
           'quantity'  => 1
         );
+	foreach ($productAdded['addons'] as $productAddon) {
+          $addonPrice = $productAddon['pricingtext'];
+          if (is_object($addonPrice)) $addonPrice= $addonPrice->toNumeric();
+          $itemsArray[] = array(
+            'name'      => htmlspecialchars_decode($productAddon['name']),
+            'id'        => $productAddon['addonid'],
+            'price'     => $addonPrice, //don't need formatter since we received it formatted
+            'category'  => $productAdded['productinfo']['groupname'],
+            'quantity'  => $productAddon['qty']
+          );
+        }
       }
       if ($_REQUEST['a'] == 'view'){
         $event = 'add_to_cart';
