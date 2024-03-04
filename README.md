@@ -21,12 +21,12 @@ connecting to a Google Analytics 4 property ID
 
 Begin by following the Google's Analytics configuration guide for Tag Manager: https://support.google.com/tagmanager/answer/9442095?hl=en
 
-Then create your GA 4 Event Tags as follows. For each of these event tags, make sure to configure them as follows:
-- Tag Type: Google Analytics: GA4 Event
+Then create the GA 4 Event Tags as follows:
+- Tag Type: Google Analytics 4 Events
 - More Settings > Ecommerce > Send Ecommerce data (with the Data source set to Data Layer)
-- Triggering: Create a trigger with a custom event where the event name is set to "view_item_list|select_item|view_item|add_to_cart|begin_checkout|purchase" and enable regex matching.
+- Triggering: Create a trigger with a custom event where the event name is set to `view_item_list|select_item|view_item|add_to_cart|begin_checkout|purchase` and enable regex matching. This allows each event name to be triggered separately.
 
-List of event tag names:
+List of event tag names actively used:
 
 1. View Item Event. Event Name: view_item
 2. Add to Cart Event. Event Name: add_to_cart
@@ -44,6 +44,6 @@ https://developers.google.com/tag-manager/ecommerce-ga4
 
 ## Minimum Requirements ##
 
-Only tested with WHMCS 8.3 and newer. Tested working up to WHMCS 8.7.2.
+Only tested with WHMCS 8.3 and newer. Tested working up to WHMCS 8.8.0
 
 This is an open source module provided free of charge and without support. Please do not request features be added, however we welcome you to look through the code, add whatever features you want and fix any bugs you see, then create a pull request for it to be included in core.
