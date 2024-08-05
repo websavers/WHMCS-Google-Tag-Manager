@@ -32,6 +32,7 @@ List of event tag names actively used:
 2. Add to Cart Event. Event Name: add_to_cart
 3. Begin Checkout Event. Event Name: begin_checkout
 4. Purchase Event. Event Name: purchase
+5. Sign Up Event. Event Name: sign_up
 
 The "Event Name" values will match with the HTML/JS markup this module generates, and enabling the Ecommerce data via Data Layer will ensure it captures the ecommerce data within that markup. This data will automatically fill out your Analytics report under Monetization > Ecommerce purchases.
 
