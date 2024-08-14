@@ -117,7 +117,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         'item_id'         => $productAdded['pid'],
         'price'           => gtm_format_price($price, $currencyCode, $currencyPrefix), //uses rawpricing so prefix technically doesn't matter
         'item_category'   => $productAdded['group_name'],
-        'quantity'        => 1
+        'quantity'        => 1,
+        'currency'        => $currencyCode
       );
       $event = 'view_item';
       $action = 'configureproduct';
@@ -133,7 +134,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
               'name'      => ucfirst($domain['type']), //Register, Transfer, Renewal
               'price'     => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
               'category'  => 'Domain',
-              'quantity'  => 1
+              'quantity'  => 1,
+              'currency'  => $currencyCode
             );
          }
         }
@@ -154,7 +156,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
           'id'        => $productAdded['productinfo']['pid'],
           'price'     => $price, //don't need formatter since we received it formatted
           'category'  => $productAdded['productinfo']['groupname'],
-          'quantity'  => 1
+          'quantity'  => 1,
+          'currency'  => $currencyCode
         );
 	foreach ($productAdded['addons'] as $productAddon) {
           $addonPrice = $productAddon['pricingtext'];
@@ -164,7 +167,8 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
             'id'        => $productAddon['addonid'],
             'price'     => $addonPrice, //don't need formatter since we received it formatted
             'category'  => $productAdded['productinfo']['groupname'],
-            'quantity'  => $productAddon['qty']
+            'quantity'  => $productAddon['qty'],
+            'currency'  => $currencyCode
           );
         }
       }
@@ -244,7 +248,8 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
       'price'          => gtm_format_price($product['amount'], $currencyCode, $currencyPrefix),
       'item_brand'     => '',
       'item_category'  => $category,
-      'quantity'       => 1
+      'quantity'       => 1,
+      'currency'       => $currencyCode
     );
   }
   
@@ -284,14 +289,142 @@ add_hook('ClientAreaRegister', 1, function($vars) {
   if ($clientdata['result'] !== 'success') return;
 
   $signupEvent = array(
-      'event'           => 'sign_up',
-      'method'          => 'WHMCS',
-      'user_id'         => $vars['client_id'],
-      'country'         => $clientdata['client']['countryname'],
-      'referrer_source' => $clientdata['client']['customfields1'], //TODO: Actually find the correct "How did you find us?" custom field to use here
-      'company_name'    => $clientdata['companyname']
+      'event'                   => 'sign_up',
+      'method'                  => 'WHMCS',
+      'user_id'                 => $vars['client_id'],
+      'first_name'              => $clientdata['client']['firstname'],
+      'last_name'               => $clientdata['client']['lastname'],
+      'email_address'           => $clientdata['client']['email'],
+      'phone_number'            => $clientdata['client']['phonenumber'],
+      'phone_country_code'      => $clientdata['client']['phonecc'],
+      'city'                    => $clientdata['client']['city'],
+      'country'                 => $clientdata['client']['countryname'],
+      'postal_code'             => $clientdata['client']['postcode'],
+      'referrer_source'         => $clientdata['client']['customfields1'], //TODO: Actually find the correct "How did you find us?" custom field to use here
+      'company_name'            => $clientdata['companyname']
   );
   return "<script id='GTM_DataLayer'>
   dataLayer.push(" . json_encode($signupEvent) . ");
 </script>";
+});
+
+add_hook('ClientAreaPageRegister', 1, function($vars) {
+    
+	if ( gtm_get_module_settings('gtm-enable-datalayer') == 'off' ) return '';
+
+	add_hook('ClientAreaFooterOutput', 1, function($vars) {
+
+		return '
+		<script id="GTM_DataLayer">
+
+			recaptchaSiteKey ? reCAPTCHAEnabled = true : reCAPTCHAEnabled = false;
+
+			if(reCAPTCHAEnabled){
+				var script = document.createElement("script");
+				script.src = "https://www.google.com/recaptcha/api.js?render=" + recaptchaSiteKey;
+				document.body.appendChild(script);
+			}
+		
+			document.querySelectorAll("#inputNewPassword1, #inputNewPassword2, #inputEmail").forEach(field => {
+				field.setAttribute("required", "");
+			});
+			
+			document.querySelector("form#frmCheckout input[type=\"submit\"]").onclick = function(e) {
+				e.preventDefault();
+
+				let errors = [];
+				const register_form 		= document.getElementById("frmCheckout");
+				const inputCountry			= document.querySelector("#inputCountry");
+				let first_name              = document.querySelector("#inputFirstName").value;
+				let last_name               = document.querySelector("#inputLastName").value;
+				let email_address           = document.querySelector("#inputEmail").value;
+				let phone_number            = document.querySelector("#inputPhone").value.replace(/\\s+/g, "");
+				let phone_country_code      = document.querySelector(".selected-dial-code").innerHTML;
+				let city                    = document.querySelector("#inputCity").value;
+				let state                   = document.querySelector("#stateinput").value;
+				let country                 = inputCountry.options[inputCountry.selectedIndex].text;
+				let postal_code             = document.querySelector("#inputPostcode").value;
+				let street_address          = document.querySelector("#inputAddress1").value;
+				let company_name            = document.querySelector("#inputCompanyName").value;
+				let street_address_2        = document.querySelector("#inputAddress2").value;
+				let password         		= document.querySelector("#inputNewPassword1").value;
+				let confirm_password        = document.querySelector("#inputNewPassword2").value;
+
+				signupEvent = {
+					event: "sign_up",
+					signupData: {method: "WHMCS"}
+				}
+
+				// Required field and add to Data Layer
+				first_name ? signupEvent.signupData.first_name = first_name : errors.push("Supply your first name.");
+				last_name ? signupEvent.signupData.last_name = last_name : errors.push("Supply your last name.");
+				email_address ? signupEvent.signupData.email_address = email_address : errors.push("Supply your email address.");
+				phone_number ? signupEvent.signupData.phone_number = phone_number : errors.push("Supply your phone number.");
+				phone_country_code ? signupEvent.signupData.phone_country_code = phone_country_code : errors.push("Select your phone number country code.");
+				street_address ? signupEvent.signupData.street_address = street_address : errors.push("Supply your street address.");
+				city ? signupEvent.signupData.city = city : errors.push("Supply your city.");
+				state ? signupEvent.signupData.state = state : errors.push("Supply your state / region.");
+				country ? signupEvent.signupData.country = country : errors.push("Select your country.");
+				postal_code ? signupEvent.signupData.postal_code = postal_code : errors.push("Supply your postal code.");
+
+				// Add to Data Layer if available
+				if(company_name){ signupEvent.signupData.company_name = company_name; }
+				if(street_address_2){ signupEvent.signupData.street_address_2 = street_address_2; }
+
+				// Required field but do not add to Data Layer
+				password || (errors.push("Please supply a password for your account."));
+				confirm_password || (errors.push("Please confirm the password for your account."));
+
+				// Remove alert
+				let existingAlert = document.querySelector(".registration-alert");
+				if (existingAlert) {
+					existingAlert.remove();
+				}
+
+				// Errors
+				if(errors.length !== 0){
+					const insertBefore = (el, htmlString) => el.insertAdjacentHTML("beforebegin", htmlString);
+					const registration_form_holder = document.getElementById("registration");
+					
+					let error_list = "";
+					errors.forEach((error) => {error_list += "<li>" + error + "</li>"});
+					
+					let error_message = "<div class=\"alert alert-danger registration-alert\"><strong>The following errors occurred:</strong><ul>" + error_list + "</ul></div>";
+
+					insertBefore(registration_form_holder, error_message);
+
+					window.scrollTo({top: 0, behavior: "smooth"});
+				}
+				// No Errors
+				else{
+					dataLayer.push(signupEvent);
+
+					// Check if reCAPTCHA is being used
+					reCAPTCHAEnabled ? submitForm(register_form) : register_form.submit();
+				}
+
+			}
+			
+			// Form submission when using reCAPTCHA v3 (invisible)
+			function submitForm(register_form) {
+				grecaptcha.ready(function() {
+					grecaptcha.execute(recaptchaSiteKey, {action: "submit"})
+					.then(token => {
+						var form = register_form;
+						var input = document.createElement("input");
+						input.type = "hidden";
+						input.name = "g-recaptcha-response";
+						input.value = token;
+						form.appendChild(input);
+				
+						// Submit the form normally
+						form.submit();
+					});
+				});
+			}
+
+		</script>
+		';
+	});
+
 });
