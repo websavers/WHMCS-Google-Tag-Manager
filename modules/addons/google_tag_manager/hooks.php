@@ -307,32 +307,39 @@ add_hook('ClientAreaPageRegister', 1, function($vars) {
 				let country                 = inputCountry.options[inputCountry.selectedIndex].text;
 				let postal_code             = document.querySelector("#inputPostcode").value;
 				let street_address          = document.querySelector("#inputAddress1").value;
+
 				let company_name            = document.querySelector("#inputCompanyName").value;
 				let street_address_2        = document.querySelector("#inputAddress2").value;
 
-				signupEvent = {
-					event: "sign_up",
-					signupData: {
-            method: "WHMCS",
-            first_name: first_name,
-            last_name: last_name,
-            email_address: email_address,
-            phone_number: phone_number,
-            phone_country_code: phone_country_code,
-            street_address: street_address,
-            city: city,
-            state: state,
-            country: country,
-            postal_code: postal_code,
+        if (first_name && last_name && email_address && phone_number){
+
+          signupEvent = {
+            event: "sign_up",
+            signupData: {
+              method: "WHMCS",
+              first_name: first_name,
+              last_name: last_name,
+              email_address: email_address,
+              phone_number: phone_number,
+              phone_country_code: phone_country_code,
+              street_address: street_address,
+              city: city,
+              state: state,
+              country: country,
+              postal_code: postal_code,
+            }
           }
-				}
 
-				// Add to Data Layer if available
-				if(company_name){ signupEvent.signupData.company_name = company_name; }
-				if(street_address_2){ signupEvent.signupData.street_address_2 = street_address_2; }
+          // Add to Data Layer if available
+          if(company_name){ signupEvent.signupData.company_name = company_name; }
+          if(street_address_2){ signupEvent.signupData.street_address_2 = street_address_2; }
 
-				dataLayer.push(signupEvent);
+          // Submit event to Google
+          dataLayer.push(signupEvent);
 
+        }
+
+        // Submit form normally
 				register_form.submit();
 
 			}
