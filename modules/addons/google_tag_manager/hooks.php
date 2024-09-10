@@ -316,14 +316,6 @@ add_hook('ClientAreaPageRegister', 1, function($vars) {
 
 		return '
 		<script id="GTM_DataLayer">
-
-			recaptchaSiteKey ? reCAPTCHAEnabled = true : reCAPTCHAEnabled = false;
-
-			if(reCAPTCHAEnabled){
-				var script = document.createElement("script");
-				script.src = "https://www.google.com/recaptcha/api.js?render=" + recaptchaSiteKey;
-				document.body.appendChild(script);
-			}
 		
 			document.querySelectorAll("#inputNewPassword1, #inputNewPassword2, #inputEmail").forEach(field => {
 				field.setAttribute("required", "");
@@ -347,80 +339,32 @@ add_hook('ClientAreaPageRegister', 1, function($vars) {
 				let street_address          = document.querySelector("#inputAddress1").value;
 				let company_name            = document.querySelector("#inputCompanyName").value;
 				let street_address_2        = document.querySelector("#inputAddress2").value;
-				let password         		= document.querySelector("#inputNewPassword1").value;
-				let confirm_password        = document.querySelector("#inputNewPassword2").value;
 
 				signupEvent = {
 					event: "sign_up",
-					signupData: {method: "WHMCS"}
+					signupData: {
+            method: "WHMCS",
+            first_name: first_name,
+            last_name: last_name,
+            email_address: email_address,
+            phone_number: phone_number,
+            phone_country_code: phone_country_code,
+            street_address: street_address,
+            city: city,
+            state: state,
+            country: country,
+            postal_code: postal_code,
+          }
 				}
-
-				// Required field and add to Data Layer
-				first_name ? signupEvent.signupData.first_name = first_name : errors.push("Supply your first name.");
-				last_name ? signupEvent.signupData.last_name = last_name : errors.push("Supply your last name.");
-				email_address ? signupEvent.signupData.email_address = email_address : errors.push("Supply your email address.");
-				phone_number ? signupEvent.signupData.phone_number = phone_number : errors.push("Supply your phone number.");
-				phone_country_code ? signupEvent.signupData.phone_country_code = phone_country_code : errors.push("Select your phone number country code.");
-				street_address ? signupEvent.signupData.street_address = street_address : errors.push("Supply your street address.");
-				city ? signupEvent.signupData.city = city : errors.push("Supply your city.");
-				state ? signupEvent.signupData.state = state : errors.push("Supply your state / region.");
-				country ? signupEvent.signupData.country = country : errors.push("Select your country.");
-				postal_code ? signupEvent.signupData.postal_code = postal_code : errors.push("Supply your postal code.");
 
 				// Add to Data Layer if available
 				if(company_name){ signupEvent.signupData.company_name = company_name; }
 				if(street_address_2){ signupEvent.signupData.street_address_2 = street_address_2; }
 
-				// Required field but do not add to Data Layer
-				password || (errors.push("Please supply a password for your account."));
-				confirm_password || (errors.push("Please confirm the password for your account."));
+				dataLayer.push(signupEvent);
 
-				// Remove alert
-				let existingAlert = document.querySelector(".registration-alert");
-				if (existingAlert) {
-					existingAlert.remove();
-				}
+				register_form.submit();
 
-				// Errors
-				if(errors.length !== 0){
-					const insertBefore = (el, htmlString) => el.insertAdjacentHTML("beforebegin", htmlString);
-					const registration_form_holder = document.getElementById("registration");
-					
-					let error_list = "";
-					errors.forEach((error) => {error_list += "<li>" + error + "</li>"});
-					
-					let error_message = "<div class=\"alert alert-danger registration-alert\"><strong>The following errors occurred:</strong><ul>" + error_list + "</ul></div>";
-
-					insertBefore(registration_form_holder, error_message);
-
-					window.scrollTo({top: 0, behavior: "smooth"});
-				}
-				// No Errors
-				else{
-					dataLayer.push(signupEvent);
-
-					// Check if reCAPTCHA is being used
-					reCAPTCHAEnabled ? submitForm(register_form) : register_form.submit();
-				}
-
-			}
-			
-			// Form submission when using reCAPTCHA v3 (invisible)
-			function submitForm(register_form) {
-				grecaptcha.ready(function() {
-					grecaptcha.execute(recaptchaSiteKey, {action: "submit"})
-					.then(token => {
-						var form = register_form;
-						var input = document.createElement("input");
-						input.type = "hidden";
-						input.name = "g-recaptcha-response";
-						input.value = token;
-						form.appendChild(input);
-				
-						// Submit the form normally
-						form.submit();
-					});
-				});
 			}
 
 		</script>
