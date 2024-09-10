@@ -277,36 +277,6 @@ add_hook('ShoppingCartCheckoutCompletePage', 1, function($vars) {
   
 });
 
-/**
- * https://developers.whmcs.com/hooks-reference/client-area-interface/#clientarearegister
- * Original code for this action provided by @File_Explorer on WHMCS Community Forums
- */
-add_hook('ClientAreaRegister', 1, function($vars) {
-
-  if ( gtm_get_module_settings('gtm-enable-datalayer') == 'off' ) return '';
-
-  $clientdata = localAPI('GetClientsDetails', array('clientid' => $vars['client_id']));
-  if ($clientdata['result'] !== 'success') return;
-
-  $signupEvent = array(
-      'event'                   => 'sign_up',
-      'method'                  => 'WHMCS',
-      'user_id'                 => $vars['client_id'],
-      'first_name'              => $clientdata['client']['firstname'],
-      'last_name'               => $clientdata['client']['lastname'],
-      'email_address'           => $clientdata['client']['email'],
-      'phone_number'            => $clientdata['client']['phonenumber'],
-      'phone_country_code'      => $clientdata['client']['phonecc'],
-      'city'                    => $clientdata['client']['city'],
-      'country'                 => $clientdata['client']['countryname'],
-      'postal_code'             => $clientdata['client']['postcode'],
-      'referrer_source'         => $clientdata['client']['customfields1'], //TODO: Actually find the correct "How did you find us?" custom field to use here
-      'company_name'            => $clientdata['companyname']
-  );
-  return "<script id='GTM_DataLayer'>
-  dataLayer.push(" . json_encode($signupEvent) . ");
-</script>";
-});
 
 add_hook('ClientAreaPageRegister', 1, function($vars) {
     
