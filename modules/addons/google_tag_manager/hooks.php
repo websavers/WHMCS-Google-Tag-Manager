@@ -294,7 +294,6 @@ add_hook('ClientAreaPageRegister', 1, function($vars) {
 			document.querySelector("form#frmCheckout input[type=\"submit\"]").onclick = function(e) {
 				e.preventDefault();
 
-				let errors = [];
 				const register_form 		= document.getElementById("frmCheckout");
 				const inputCountry			= document.querySelector("#inputCountry");
 				let first_name              = document.querySelector("#inputFirstName").value;
