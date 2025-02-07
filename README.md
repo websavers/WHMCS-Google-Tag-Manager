@@ -20,19 +20,31 @@ connecting to a Google Analytics 4 property ID
 ## Google Analytics 4 Ecommerce Integration ##
 
 Begin by following the Google's Analytics configuration guide for Tag Manager: https://support.google.com/tagmanager/answer/9442095?hl=en
+This will ensure GTM incorporates the Analytics tracking code on your site
 
-Then create the GA 4 Event Tags as follows:
+Now we need to create GA4 Triggers (one of each for each of the following events):
+WHMCS View Item list
+Custom Event
+Event name: view_item_list
+
+WHMCS View Item
+Events name (regex): `select_item|domain_selection|view_item`
+
+WHMCS Add To Cart
+Event name: add_to_cart
+
+WHMCS Begin Checkout
+Event name: begin_checkout
+
+WHMCS Purchase
+Event name: purchase
+
+WHMCS Sign Up
+Event name: sign_up
+
+Repeat that for Tags and in each one configure these values:
 - Tag Type: Google Analytics 4 Events
 - More Settings > Ecommerce > Send Ecommerce data (with the Data source set to Data Layer)
-- Triggering: Create a trigger with a custom event where the event name is set to `view_item_list|select_item|view_item|add_to_cart|begin_checkout|purchase` and enable regex matching. This allows each event name to be triggered separately.
-
-List of event tag names actively used:
-
-1. View Item Event. Event Name: view_item
-2. Add to Cart Event. Event Name: add_to_cart
-3. Begin Checkout Event. Event Name: begin_checkout
-4. Purchase Event. Event Name: purchase
-5. Sign Up Event. Event Name: sign_up
 
 The "Event Name" values will match with the HTML/JS markup this module generates, and enabling the Ecommerce data via Data Layer will ensure it captures the ecommerce data within that markup. This data will automatically fill out your Analytics report under Monetization > Ecommerce purchases.
 
