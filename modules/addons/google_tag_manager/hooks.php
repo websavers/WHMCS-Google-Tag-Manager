@@ -300,7 +300,7 @@ add_hook('ClientAreaPageRegister', 1, function($vars) {
 				let last_name               = document.querySelector("#inputLastName").value;
 				let email_address           = document.querySelector("#inputEmail").value;
 				let phone_number            = document.querySelector("#inputPhone").value.replace(/\\s+/g, "");
-				let phone_country_code      = document.querySelector(".selected-dial-code").innerHTML;
+				//let phone_country_code      = document.querySelector(".selected-dial-code").innerHTML;
 				let city                    = document.querySelector("#inputCity").value;
 				let state                   = document.querySelector("#stateinput").value;
 				let country                 = inputCountry.options[inputCountry.selectedIndex].text;
@@ -320,7 +320,7 @@ add_hook('ClientAreaPageRegister', 1, function($vars) {
               last_name: last_name,
               email_address: email_address,
               phone_number: phone_number,
-              phone_country_code: phone_country_code,
+              //phone_country_code: phone_country_code,
               street_address: street_address,
               city: city,
               state: state,
