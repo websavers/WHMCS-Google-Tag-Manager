@@ -79,6 +79,12 @@ function google_tag_manager_config(){
                 'Default' => 'no',
                 'Description' => 'Inject a Consent Mode v2 default-denied bootstrap before GTM loads. Required if your client area serves visitors in the EU/EEA/UK and you load any Google tags (GA4, Google Ads, etc.). When enabled, your cookie banner (or external CMP) is responsible for calling gtag(\'consent\', \'update\', { ... }) once the visitor accepts. Leave disabled if you are not using a cookie banner, or if your CMP already injects its own consent bootstrap before this module runs.',
             ],
+            'gtm-url-passthrough-cart' => [
+                'FriendlyName' => 'URL passthrough on cart only',
+                'Type' => 'yesno',
+                'Default' => 'no',
+                'Description' => 'When Consent Mode is enabled, optionally set gtag(\'set\', \'url_passthrough\', true) on cart.php so cross-domain attribution (cart &rarr; payment gateway) survives denied analytics_storage. Restricted to the cart because enabling it site-wide can break WHMCS account forms on installs with URL rewriting (extra _gl/gclid parameters cause 404s on POST). Leave off unless you specifically need GA cross-domain linking during checkout.',
+            ],
         ]
     ];
 }

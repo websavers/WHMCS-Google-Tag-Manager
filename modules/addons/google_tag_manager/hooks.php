@@ -95,7 +95,7 @@ add_hook('ClientAreaHeadOutput', 0, function($vars) {
   $container_id = gtm_safe_container_id(gtm_get_module_settings('gtm-container-id'));
   if (empty($container_id)) return '';
 
-  return "<!-- Google Consent Mode v2 default (RareCloud / WHMCS-GTM module) -->
+  $script = "<!-- Google Consent Mode v2 default (RareCloud / WHMCS-GTM module) -->
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
@@ -110,10 +110,24 @@ gtag('consent', 'default', {
   'security_storage': 'granted',
   'wait_for_update': 500
 });
-gtag('set', 'url_passthrough', true);
-gtag('set', 'ads_data_redaction', true);
-</script>
-<!-- End Google Consent Mode v2 default -->";
+gtag('set', 'ads_data_redaction', true);";
+
+  // url_passthrough decorates outbound URLs with _gl/gclid query parameters so
+  // GA can stitch sessions across domains when analytics_storage is denied.
+  // Enabling it site-wide breaks WHMCS account forms on installs with URL
+  // rewriting (the extra params land in the action= path and the POST 404s).
+  // It is only meaningfully useful during checkout (cart -> payment gateway),
+  // so restrict it to cart.php and gate behind an opt-in setting. See upstream
+  // issue #22.
+  if (
+    gtm_get_module_settings('gtm-url-passthrough-cart') === 'on'
+    && basename($_SERVER['PHP_SELF'] ?? '') === 'cart.php'
+  ) {
+    $script .= "\ngtag('set', 'url_passthrough', true);";
+  }
+
+  $script .= "\n</script>\n<!-- End Google Consent Mode v2 default -->";
+  return $script;
 
 });
 
