@@ -189,10 +189,9 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
       $itemsArray[] = array(
         'item_name'       => htmlspecialchars_decode($productAdded['name']),
         'item_id'         => $productAdded['pid'],
-        'price'           => gtm_format_price($price, $currencyCode, $currencyPrefix), //uses rawpricing so prefix technically doesn't matter
         'item_category'   => $productAdded['group_name'],
+        'price'           => gtm_format_price($price, $currencyCode, $currencyPrefix), //uses rawpricing so prefix technically doesn't matter
         'quantity'        => 1,
-        'currency'        => $currencyCode
       );
       $event = 'view_item';
       $action = 'configureproduct';
@@ -205,11 +204,10 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         foreach($vars['domains'] as $domain){
           if (is_array($domain)){
             $itemsArray[] = array(                        
-              'name'      => ucfirst($domain['type']), //Register, Transfer, Renewal
-              'price'     => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
-              'category'  => 'Domain',
-              'quantity'  => 1,
-              'currency'  => $currencyCode
+              'item_name'     => ucfirst($domain['type']), //Register, Transfer, Renewal
+              'item_category' => 'Domain',
+              'price'         => gtm_format_price($domain['price'], $currencyCode, $currencyPrefix),
+              'quantity'      => 1,
             );
          }
         }
@@ -226,23 +224,21 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
         $price = $productAdded['pricing']['baseprice'];
         if (is_object($price)) $price = $price->toNumeric();
         $itemsArray[] = array(                       
-          'name'      => htmlspecialchars_decode($productAdded['productinfo']['name']),
-          'id'        => $productAdded['productinfo']['pid'],
+          'item_name' => htmlspecialchars_decode($productAdded['productinfo']['name']),
+          'item_id'   => $productAdded['productinfo']['pid'],
+          'item_category'  => $productAdded['productinfo']['groupname'],
           'price'     => $price, //don't need formatter since we received it formatted
-          'category'  => $productAdded['productinfo']['groupname'],
           'quantity'  => 1,
-          'currency'  => $currencyCode
         );
 	foreach ($productAdded['addons'] as $productAddon) {
           $addonPrice = $productAddon['pricingtext'];
           if (is_object($addonPrice)) $addonPrice= $addonPrice->toNumeric();
           $itemsArray[] = array(
-            'name'      => htmlspecialchars_decode($productAddon['name']),
-            'id'        => $productAddon['addonid'],
-            'price'     => $addonPrice, //don't need formatter since we received it formatted
-            'category'  => $productAdded['productinfo']['groupname'],
-            'quantity'  => $productAddon['qty'],
-            'currency'  => $currencyCode
+            'item_name'     => htmlspecialchars_decode($productAddon['name']),
+            'item_id'       => $productAddon['addonid'],
+            'item_category' => $productAdded['productinfo']['groupname'],
+            'price'         => $addonPrice, //don't need formatter since we received it formatted
+            'quantity'      => $productAddon['qty'],
           );
         }
       }
@@ -277,7 +273,10 @@ add_hook('ClientAreaFooterOutput', 1, function($vars) {
     $eventArray = array(
       'event'         => $event,
       'eventAction'   => $action,
-      'ecommerce'     => array( 'items' => $itemsArray )
+      'ecommerce'     => array( 
+        'currency'  => $currencyCode,
+        'items' => $itemsArray 
+      )
     );
 
     return "<script id='GTM_DataLayer'>
